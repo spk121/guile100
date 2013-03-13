@@ -231,9 +231,15 @@ interpreted as being part of the escape.
 If a @code{\0} escape is present and its octal value is greater than
 377, print nothing. In this case, the exit value will be 1.
 
-An octal escape may have initial zeros.  For example, the following
-escapes should all cause the raw byte 1 to be output: @code{\01},
-@code{\001}, @code{\0001}.
+An octal escape may not have unnecessary initial zeros.  For example
+@itemize
+@item
+@code{\01} should output raw byte 1
+@item 
+@code{\001} should output raw byte zero followed by the string ``01''
+@item
+@code{\0001} should output raw byte zero followed by the string ``001''
+@end itemize
 
 The digits 8 and 9 are not part of an octal escape.  For example, the
 string @code{\018} shall be output as the raw byte 1 followed by the
