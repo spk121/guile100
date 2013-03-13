@@ -1,10 +1,10 @@
 \input texinfo
 @comment             **********************************************************
 @setfilename         g100
-@settitle            100 Guile Programs
+@settitle            The Guile 100 Programs Project
 @comment
-@set utfversion      0.0
-@set utfversiondate  Mar 11, 2013
+@set utfversion      0.1
+@set utfversiondate  Mar 13, 2013
 @comment
 @comment             This is a Texinfo file.  To convert it to Info hypertext
 @comment             format, you will need the `makeinfo' program from the GNU
@@ -19,7 +19,7 @@
 
 @dircategory The Algorithmic Language Scheme
 @direntry
-* G100: (g100). 100 Guile Programs
+* G100: (g100). The Guile 100 Programs Project
 @end direntry
 
 @macro newterm{term}
@@ -31,9 +31,9 @@
 @setshortcontentsaftertitlepage
 
 @titlepage
-@title  100 Guile Programs
+@title  The Guile 100 Programs Project
 @sp 0.2
-@subtitle @value{utfversion}
+@subtitle @value{utfversion} - @value{utfversiondate}
 @author Edited by Michael Gran
 
 @page
@@ -65,7 +65,7 @@ Los Angeles, California
 
 @ifinfo
 
-@heading 100 Guile Programs
+@heading The Guile 100 Programs Project
 
 @noindent
 Edited by Michael Gran@*
@@ -75,6 +75,19 @@ Edited by Michael Gran@*
 Version @value{utfversion} (@value{utfversiondate})
 
 @end ifinfo
+
+@ifhtml
+
+@heading The Guile 100 Programs Project
+
+@noindent
+Version @value{utfversion} (@value{utfversiondate})
+
+This online resource is a collection of sample programs written in GNU
+Guile, an implementation of the Scheme language.
+
+@end ifhtml
+
 
 @menu
 * Preface::
