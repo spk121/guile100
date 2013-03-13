@@ -1,0 +1,318 @@
+\input texinfo
+@comment             **********************************************************
+@setfilename         g100
+@settitle            100 Guile Programs
+@comment
+@set utfversion      0.0
+@set utfversiondate  Mar 11, 2013
+@comment
+@comment             This is a Texinfo file.  To convert it to Info hypertext
+@comment             format, you will need the `makeinfo' program from the GNU
+@comment             Texinfo package.  To produce a PDF, use `texi2pdf'. 
+@comment             
+@comment             
+@comment             **********************************************************
+
+@comment HISTORY:
+@comment
+@comment * Mar 11, 2013: initial commit.
+
+@dircategory The Algorithmic Language Scheme
+@direntry
+* G100: (g100). 100 Guile Programs
+@end direntry
+
+@macro newterm{term}
+@cindex \term\
+@dfn{\term\}
+@end macro
+
+@c @setchapternewpage odd
+@setshortcontentsaftertitlepage
+
+@titlepage
+@title  100 Guile Programs
+@sp 0.2
+@subtitle @value{utfversion}
+@author Edited by Michael Gran
+
+@page
+@vskip 0pt plus 1filll
+@noindent
+@copyright{} 2013 by Michael Gran
+
+@sp 0.5
+@noindent
+100 Guile Programs
+
+@noindent
+This work is licensed under GFDL 1.3+@*
+(@url{http://www.gnu.org/licenses/fdl.html, GFDL 1.3+}).
+
+@sp 0.5
+@noindent
+A Lonely Cactus Production@*
+Los Angeles, California 
+
+
+@end titlepage
+@everyheading @| @| @thispage
+
+@c to suppress the black boxes after overfull lines:
+@finalout
+
+@node Top, Preface, (dir), (dir)
+
+@ifinfo
+
+@heading 100 Guile Programs
+
+@noindent
+Edited by Michael Gran@*
+@copyright{} 2013 Michael Gran
+
+@noindent
+Version @value{utfversion} (@value{utfversiondate})
+
+@end ifinfo
+
+@menu
+* Preface::
+* Acknowledgments::
+* Theme 1::     /bin
+* References::
+* List of Exercises::
+* List of Figures::
+* Index::
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Theme 1: ``/bin''
+
+* Problem 1::
+
+@end detailmenu
+@end menu
+
+@node    Preface, Acknowledgments, Top, Top
+@unnumbered Preface
+
+This book aspires to be a useful set of examples about how one might
+use @acronym{GNU} Guile. 
+
+@node       Acknowledgments, Theme 1, Preface, Top
+@unnumbered Acknowledgments
+
+We would like to thank the many people who have helped us develop this book.
+
+@node    Theme 1, References, Acknowledgments, Top
+@chapter Theme 1: ``/bin''
+
+Every project has to start somewhere, so I suppose we'll begin at the
+beginning.
+
+Guile can be used as a scripting language.  Programs can be written as
+plain text files, and then run from the command line by using the
+Guile interpreter.  As such, most scripts run on Unix-like shells will
+begin with a sha-bang @code{#!} invocation.  And most scripts must
+start off doing the same chores: parsing the command line, acting on
+the options, and finding the files whose names appeared in the
+command-line arguments.
+
+To introduce these mundane concepts, our first theme is @emph{/bin}, e.g.
+re-implementing some common Unix tools.  This will get us warmed up.
+
+These examples should demonstrate
+@itemize
+@item
+How to set up the sha-bang invocation for Guile scripts run from Unix
+shells.
+@item
+How to handle command line arguments
+@item
+How to map file names given as command line arguments to their files
+@item
+How to search for files and directories
+@item
+How to open files, both as binary data and as encoded text data
+@end itemize
+
+And so, without further ado, here is the first problem.
+
+@menu
+* Problem 1:: Echo and Cat
+@end menu
+
+@node    Problem 1,  , Theme 1, Theme 1
+@section Problem 1: Echo and Cat
+
+In this problem, two venerable Unix commands are re-implemented in
+Scheme: @command{echo} and @command{cat}.  @command{echo} prints out
+the command-line arguments, and @command{cat} prints a file to the
+terminal.
+
+@heading Echo
+
+The @command{echo} script writes its arguments to the standard output,
+followed by a <newline>.  If there are no arguments, it just prints a
+<newline>.
+
+@command{echo} has no command-line options.  Even @code{--help} and
+@code{--version} are not treated as command-line options.
+
+If any of the arguments contain the backslash character (@code{\}),
+the argument is modified.  Backslash introduces an escape.  These
+escapes are parsed from logical left to right.
+
+@table @code
+@item \a
+Write an <alert> in place of @code{\a}.
+@item \b
+Write a <backspace> in place of @code{\b}.
+@item \c
+Suppress the <newline> that would otherwise be written after the
+command-line arguments.  The @code{\c} is not written, any remaining
+characters in this argument are not written, and any remaining
+arguments are not written.
+@item \f
+Write a <form-feed> in place of @code{\f}.
+@item \n
+Write a <newline> in place of @code{\n}.
+@item \r
+Write a <carriage-return> in place of @code{\r}.
+@item \t
+Write a <tab> in place of @code{\t}
+@item \v
+Write a <vertical-tab> in place of @code{\v}.
+@item \\
+Write a single backslash character in place of the pair of backslash characters.
+@item \0@i{num}
+Write an 8-bit character corresponding to @i{num}, an octal number
+between octal 0 and octal 377 (decimal 255) inclusive.
+@end table
+
+A backslash at the end of a command line argument will not be escaped.
+The backslash will be written.  However, the exit value will be 1 in
+this case.
+
+A backslash followed by any other character not listed in the table,
+will will not be escaped.  The backslash will be written, and the
+character that follows it will be written.  However, in this
+case, the exit value will be 1.
+
+For the octal escape @code{\0}, it is important to note that this
+value is not an ISO-8859-x position or a Unicode code point, but,
+rather a raw 8-bit byte to be sent unencoded to the standard output.
+It is up to the operator, not @command{echo}, to ensure that a
+character sequence that is valid for the environments locale is being
+sent.
+
+If a @code{\0} escape is present, but is not followed by an
+number, the raw byte zero is written.
+
+If a @code{\0} escape is present and is followed by an octal
+number of greater than 3 digits, only the first 3 digits will be
+interpreted as being part of the escape.
+
+If a @code{\0} escape is present and its octal value is greater than
+377, print nothing. In this case, the exit value will be 1.
+
+An octal escape may have initial zeros.  For example, the following
+escapes should all cause the raw byte 1 to be output: @code{\01},
+@code{\001}, @code{\0001}.
+
+The digits 8 and 9 are not part of an octal escape.  For example, the
+string @code{\018} shall be output as the raw byte 1 followed by the
+character for the numeral 8.
+
+Remember that command-line arguments and file names may contain any
+character allowed by the current locale.
+
+In all other cases, the exit value will be zero.
+
+@heading Cat
+
+@command{cat} [OPTION]... [FILE]...
+
+@command{cat} concatenates files or standard input and prints it to
+the standard output.
+
+This version of @command{cat} supports three command-line options,
+each with a short and a long form.
+@table @option
+@item -u --unbuffered
+Do no buffering.  Write bytes from the input to the standard output
+without delay as each character is read.
+@item -h --help
+Print out command help.
+@item -v --version
+Print out the program name and version number.
+@end table
+
+After the command-line options, a list of file names is expected.  The
+contents of the files are printed to standard output.  No character
+encoding or decoding of the contents of the files should be performed:
+they should be transmitted unmodified.
+
+If the special file name @file{-} (hyphen) is given, at that point the
+contents of the standard input will be transmitted to the standard
+output.
+
+If one of the files does not exist, or if it cannot be opened, the
+program will print a descriptive error message to the standard error
+and will return the exit code 1.
+
+If the program is interrupted by the SIGINT signal, the program will
+be terminated and will return the exit code 130.
+
+Otherwise, the exit code is zero.
+
+@heading Rules and Suggestions for the Volunteer
+
+For this exercise, only Guile's library functions can be used.  No
+external libraries are allowed.
+
+Note that Guile has two sets of functions to help parse command line
+options: the @code{ice-9 getopt-long} module and the @code{srfi
+srfi-37} module.  These may or may not be of use for these scripts; if
+they are useful, it is preferable to use them than to roll your own
+
+The output product will be the @command{echo} script, the
+@command{cat} script, and a couple of paragraphs on lessons learned.
+
+@node    References, List of Exercises, Theme 1, Top
+@unnumbered References
+
+@anchor{Allen 1978}
+Allen, John.  1978.  @cite{Anatomy of Lisp}. New York: McGraw-Hill.
+
+@anchor{ANSI 1994}
+@acronym{ANSI} X3.226-1994. @cite{American National Standard for Information
+Systems@/---Programming Language---Common Lisp}.
+
+
+@node    List of Exercises, List of Figures, References, Top
+@unnumbered List of Exercises
+
+
+@node    List of Figures, Index, List of Exercises, Top
+@unnumbered List of Figures
+
+
+@node    Index,  , List of Figures, Top
+@unnumbered Index
+
+@quotation
+Any inaccuracies in this index may be explained by the fact@* 
+that it has been prepared with the help of a computer. 
+
+---Donald E. Knuth, @cite{Fundamental Algorithms}@* 
+(Volume 1 of @cite{The Art of Computer Programming}) 
+@end quotation
+
+@sp 1.7
+
+@printindex cp
+
+@bye
