@@ -3,8 +3,8 @@
 @setfilename         g100
 @settitle            The Guile 100 Programs Project
 @comment
-@set utfversion      0.1
-@set utfversiondate  Mar 13, 2013
+@set utfversion      0.2
+@set utfversiondate  Mar 18, 2013
 @comment
 @comment             This is a Texinfo file.  To convert it to Info hypertext
 @comment             format, you will need the `makeinfo' program from the GNU
@@ -88,11 +88,10 @@ Guile, an implementation of the Scheme language.
 
 @end ifhtml
 
-
 @menu
 * Preface::
 * Acknowledgments::
-* Theme 1::     /bin
+* Theme 1::
 * References::
 * List of Exercises::
 * List of Figures::
@@ -103,7 +102,8 @@ Guile, an implementation of the Scheme language.
 
 Theme 1: ``/bin''
 
-* Problem 1::
+* Problem 1::                   Echo and Cat
+* Problem 2::                   LS
 
 @end detailmenu
 @end menu
@@ -154,10 +154,11 @@ How to open files, both as binary data and as encoded text data
 And so, without further ado, here is the first problem.
 
 @menu
-* Problem 1:: Echo and Cat
+* Problem 1::                   Echo and Cat
+* Problem 2::                   LS
 @end menu
 
-@node    Problem 1,  , Theme 1, Theme 1
+@node    Problem 1, Problem 2, Theme 1, Theme 1
 @section Problem 1: Echo and Cat
 
 In this problem, two venerable Unix commands are re-implemented in
@@ -300,6 +301,167 @@ they are useful, it is preferable to use them than to roll your own
 The output product will be the @command{echo} script, the
 @command{cat} script, and a couple of paragraphs on lessons learned.
 
+@node    Problem 2,  , Problem 1, Theme 1
+@section Problem 2: LS
+
+In this problem, we investigate the most famous Unix command of all
+time: @command{ls}.  @command{ls} lists files or directories, and
+displays their properties.
+
+However, @command{ls} has accumulated dozens of options over the past
+decades.  Implementing a feature-complete @command{ls} would takes
+weeks or months of work.  So, for this week's problem, we are going to
+constrain ourselves to the most important command-line options.
+
+The command @command{ls} lists information about files, directories,
+and the contents of directories.  Basically, for this challenge, the
+script should operate like a limited functionality version of Posix
+@command{ls}.
+
+The script need only recognize a limited set of command-line options:
+@itemize
+@item
+@option{-a} - display all matching files, including those whose name
+begins with a period
+@item
+@option{-l} - use the long output format
+@item
+@option{-R} - recursively descend into subdirectories
+@end itemize
+Any other command-line arguments that begin with a hyphen should cause
+an ``invalid option'' error, and the program will be terminated with a
+non-zero exit code.
+
+The command-line option @option{-R} will recursively print the
+contents of any subdirectory encountered.  When this option is
+requested, the script must check for infinite loops: it should error
+when it enters a subdirectory whose contents have already been listed,
+and a non-zero exit value should be returned.
+
+The command-line option @option{-l} has two effects.  One, information
+about the files will be printed in the long format.  Two, when given a
+symbolic link to a directory, the command will print information about
+the symbolic link itself and not the file or directory to which it
+points.
+
+@heading Operands
+
+If a command-line argument does not begin with a hyphen, it is treated
+as an operand.
+
+When called without operands, the contents of the current directory
+are printed.
+
+Operands must be either the names of files, directories, or symbolic
+links.  When an operand that is not one of the above is encountered,
+the script should print a descriptive error and exit with a non-zero
+return code.
+
+If an operand is a file, @command{ls} will print the name of the file.
+If an operand is a symbolic link to a file, the command will print the
+name of the link.  If an operand is a directory, @command{ls} will
+print out the contents of that directory.  If an operand is a symbolic
+link to a directory, @command{ls} will print the contents of that
+directory, unless the @option{-l} is given.
+
+When printing the contents of a directory, files and directories
+that begin with <period> are usually not printed.  If the command-line
+option @option{-a} is given, files and directories that begin with
+<period> are printed.
+
+@heading Output
+
+There are two output formats: the default format and the long format.
+
+Within each directory, the files are sorted in case-insensitive
+alphabetical order according to the current locale.
+
+In the default format, the filenames are output one per line.  You can
+print them out in a columnar format if you like, though.
+
+In the long format, the file information will be printed as follows
+
+The first character will be `d' for directory, `-' for
+regular file, `b' for block special file, `l' for symbolic link, `c'
+for character special file, and `p' for fifo.
+
+The second character will be `r' if the file or directory is readable
+by the owner or `-' if it is not.
+
+The third character will be `w' if the file or directory is writable
+by the owner or `-' if it is not.
+
+The fourth character will be `S' if the file is not executable and the
+set-user-ID mode is set, `s' if the file is executable and the
+set-user-ID mode is set, `x' if the file is executable or the
+directory is searchable by the owner, or `-' otherwise.
+
+The fifth character will be `r' if the file or directory is readable
+by the group or `-' if it is not.
+
+The sixth character will be `w' if the file or directory is writable
+by the group or `-' if it is not.
+
+The seventh character will be `S' if the file is not executable and
+the set-group-ID mode is set, `s' if the file is executable and the
+set-group-ID mode is set, `x' if the file is exectuable or the
+directory is searchable by members of this group, or `-' otherwise.
+
+The eighth character will be `r' if the file or directory is readable
+by others or `-' otherwise.
+
+The ninth character will be `w' if the file or directory is writable
+by others or `-' otherwise.
+
+The tenth character will be `T' if the file is a directory and the
+search permission is not granted to others and the restricted
+deletion flag is set, `t' if the file is a directory and the search
+permission is granted to others and the restricted deletion flag is
+set, `x' if the file is executable or the directory is searchable by
+others, or `-' otherwise.
+
+The eleventh character is a <space>.
+
+The remaining elements of the line are ``<link count> <owner name>
+<group name> <file size> <date and time> <pathname>''
+
+The link count for a directory is the number of immediate
+subdirectories it has plus one for itself plus one for its parent.
+The link count for a file is one.
+
+The file size is in bytes.
+
+The date and time is in ``month day hour:sec'' format if the file has
+been modified in the last six months, or ``month day year'' format
+otherwise.
+
+The pathname for links is in the format ``<link name> -> <path to
+linked file or directory>''
+
+The exit code should be zero except in those error cases described
+above.
+
+For more information about @command{ls}, you can consult The Open
+Group Base Specifications Issue 6, or the documentation of any BSD or
+GNU version of @command{ls}. 
+
+@heading Rules and Suggestions for the Volunteer
+
+@emph{It is unknown if Guile has sufficient functionality to
+actually query all the information requried for the long format.  It
+is up to the volunteer to discover this.}
+
+For this exercise, only Guile's library functions can be used.  No
+external libraries are allowed.
+
+Note that there are Scheme versions of @command{ls} that exist.
+Copying them is considered cheating.
+
+Note that Guile has two sets of functions to help parse command line
+options: the @code{ice-9 getopt-long} module and the @code{srfi
+srfi-37} module.  You should use one of them.
+
+
 @node    References, List of Exercises, Theme 1, Top
 @unnumbered References
 
@@ -310,6 +472,9 @@ Allen, John.  1978.  @cite{Anatomy of Lisp}. New York: McGraw-Hill.
 @acronym{ANSI} X3.226-1994. @cite{American National Standard for Information
 Systems@/---Programming Language---Common Lisp}.
 
+@anchor{IEEE 2004}
+The @acronym{IEEE} and The Open Group. 2001-2004. @cite{The Open Group Base Specifications Issue
+6@/ IEEE Std 1003.1, 2004 Edition}.
 
 @node    List of Exercises, List of Figures, References, Top
 @unnumbered List of Exercises
