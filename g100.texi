@@ -102,8 +102,9 @@ Guile, an implementation of the Scheme language.
 
 Theme 1: ``/bin''
 
-* Problem 1::                   Echo and Cat
-* Problem 2::                   LS
+* Problem 1::                   echo and cat
+* Problem 2::                   ls
+* Problem 3::                   LZW Compression
 
 @end detailmenu
 @end menu
@@ -168,8 +169,9 @@ How to open files, both as binary data and as encoded text data
 And so, without further ado, here is the first problem.
 
 @menu
-* Problem 1::                   Echo and Cat
-* Problem 2::                   LS
+* Problem 1::                   echo and cat
+* Problem 2::                   ls
+* Problem 3::                   LZW Compression
 @end menu
 
 @node    Problem 1, Problem 2, Theme 1, Theme 1
@@ -342,7 +344,7 @@ Next up is @command{echo}.
 @verbatiminclude code/echo.scm
 @page
 
-@node    Problem 2,  , Problem 1, Theme 1
+@node    Problem 2, Problem 3, Problem 1, Theme 1
 @section Problem 2: `ls'
 
 In this problem, we investigate the most famous Unix command of all
@@ -502,7 +504,7 @@ Note that Guile has two sets of functions to help parse command line
 options: the @code{ice-9 getopt-long} module and the @code{srfi
 srfi-37} module.  You should use one of them.
 
-@node    Problem 3
+@node    Problem 3,  , Problem 2, Theme 1
 @section Problem 3: LZW Compression
 
 Lempel-Ziv-Welch compression is the basis of both the UNIX Compress
