@@ -3,8 +3,8 @@
 @setfilename         g100
 @settitle            The Guile 100 Programs Project
 @comment
-@set utfversion      0.2
-@set utfversiondate  Mar 18, 2013
+@set utfversion      0.3
+@set utfversiondate  Mar 25, 2013
 @comment
 @comment             This is a Texinfo file.  To convert it to Info hypertext
 @comment             format, you will need the `makeinfo' program from the GNU
@@ -114,15 +114,29 @@ Theme 1: ``/bin''
 This book aspires to be a useful set of examples about how one might
 use @acronym{GNU} Guile. 
 
+One of the interesting things about the Scheme community is that they
+are perhaps @emph{too clever}.  The depth and complexity of their
+thinking about computer languages is intense and wonderful.
+
+And yet, some times you just want to do something mundane.  Where are
+the resources for how to use Scheme -- and specifically Guile -- for
+quotidian tasks?
+
+Well, this document will be it, if all goes according to plan.
+
 @node       Acknowledgments, Theme 1, Preface, Top
 @unnumbered Acknowledgments
 
 We would like to thank the many people who have helped us develop this book.
+@itemize
+Chris K Jester-Young contributed the original version of the @command{echo}
+and @command{cat} scripts for Problem 1.
+@end itemize
 
 @node    Theme 1, References, Acknowledgments, Top
 @chapter Theme 1: ``/bin''
 
-Every project has to start somewhere, so I suppose we'll begin at the
+Every project has to start somewhere, so let us begin at the
 beginning.
 
 Guile can be used as a scripting language.  Programs can be written as
@@ -166,14 +180,23 @@ Scheme: @command{echo} and @command{cat}.  @command{echo} prints out
 the command-line arguments, and @command{cat} prints a file to the
 terminal.
 
+@subsection The Requirements for `echo' and `cat'
+
+In this problem, like in many of the problems, we'll lay out the
+requirements for a program, and then see how our volunteer implemented
+the requirements.  For the purpose of this exercise, the requirements
+for @command{echo} and @command{cat} with be drawn from the Posix
+standard@footnote{@ref{IEEE 2004}}, with a couple of minor
+modifications.
+
 @heading Echo
 
 The @command{echo} script writes its arguments to the standard output,
 followed by a <newline>.  If there are no arguments, it just prints a
 <newline>.
 
-@command{echo} has no command-line options.  Even @code{--help} and
-@code{--version} are not treated as command-line options.
+@command{echo} has no command-line options.  Even @option{--help} and
+@option{--version} are not treated as command-line options.
 
 If any of the arguments contain the backslash character (@code{\}),
 the argument is modified.  Backslash introduces an escape.  These
@@ -283,26 +306,44 @@ If one of the files does not exist, or if it cannot be opened, the
 program will print a descriptive error message to the standard error
 and will return the exit code 1.
 
-If the program is interrupted by the SIGINT signal, the program will
-be terminated and will return the exit code 130.
-
 Otherwise, the exit code is zero.
 
 @heading Rules and Suggestions for the Volunteer
 
-For this exercise, only Guile's library functions can be used.  No
-external libraries are allowed.
+For this exercise, the volunteer was requested to use only Guile's
+library functions.  No external libraries were allowed.
 
-Note that Guile has two sets of functions to help parse command line
+The volunteer was also requested to attempt to use one of Guile's 
+two sets of functions to help parse command line
 options: the @code{ice-9 getopt-long} module and the @code{srfi
-srfi-37} module.  These may or may not be of use for these scripts; if
-they are useful, it is preferable to use them than to roll your own
+srfi-37} module.  As you shall see, the volunteer did use manage to
+use @code{ice-9 getopt-long} for @command{cat}.
 
-The output product will be the @command{echo} script, the
-@command{cat} script, and a couple of paragraphs on lessons learned.
+@subsection An Implementation of `echo' and `cat'
+
+Chris K Jester-Young was the volunteer for this section, and here are
+his solutions, with some annotations by the editor.
+
+@heading `cat'
+
+First we have @command{cat}.  One interesting thing to note in this
+example is the use of @code{catch} to catch system errors that may
+arise if files do not exist or cannot be opened.
+
+@page
+@verbatiminclude code/cat.scm
+@page
+
+@heading `echo'
+
+Next up is @command{echo}. 
+
+@page
+@verbatiminclude code/echo.scm
+@page
 
 @node    Problem 2,  , Problem 1, Theme 1
-@section Problem 2: LS
+@section Problem 2: `ls'
 
 In this problem, we investigate the most famous Unix command of all
 time: @command{ls}.  @command{ls} lists files or directories, and
@@ -460,6 +501,194 @@ Copying them is considered cheating.
 Note that Guile has two sets of functions to help parse command line
 options: the @code{ice-9 getopt-long} module and the @code{srfi
 srfi-37} module.  You should use one of them.
+
+@node    Problem 3
+@section Problem 3: LZW Compression
+
+Lempel-Ziv-Welch compression is the basis of both the UNIX Compress
+program and of GIF encoding.  Today's challenge has two parts.
+@itemize
+@item
+Write `compress' and `uncompress' procedures for LZW compression.
+@item
+Use them to make `compress' and `uncompress' scripts.
+@end itemize
+
+@subsection The Requirements for Compression Procedures and Scripts
+
+First up are the compression procedures.  Good old LZW compressions: a
+nice problem in every CompSci's undergraduate classes.
+
+@heading @code{lzw-compress} and @code{lzw-uncompress}
+
+@deffn {Guile Procedure} lzw-compress input-bv #:key table-size dictionary
+This procedure should take a bytevector presumed to contain 8-bit
+unsigned integers, and it should return a bytevector containing 16-bit
+unsigned integers in little-endian format.  
+
+@var{input-bv} is the input bytevector.
+
+@var{table-size} is an optional parameter that indicates the maximum
+number of entries in the dictionary.  This parameter is limited to the
+range 258 - 65536.  The default value of @var{table-size} is 65536.
+
+@var{dictionary} is an optional parameter that modifies the output.
+When true, the procedure should return both the output 16-bit
+bytevector as well as the dictionary or hash table created by the
+compression routine.  Since the formation of the dictionary is up to
+the implementer, the output format of the dictionary is unspecified.
+@end deffn
+
+Probably the best writup on LZW compression is the one by Mark Nelson
+over at @uref{http://marknelson.us/2011/11/08/lzw-revisited/}. Refer
+to that article for details on LZW compression.
+
+As is common, the first 256 entries in the dictionary -- entries #0 to
+#255 -- are initialized to 0 to 255.  Entry #256 is not to be
+used.  Entries #257 to #(table-size - 1) will contain the multi-byte
+entries in the dictionary.
+
+@deffn {Guile Procedure} lzw-uncompress input-bv #:key table-size dictionary
+Similarly, this procedure takes @var{input-bv} the bytevector created
+by @code{compress} and an optional table size and returns the
+8-bit unsigned bytevector of uncompressed data.  @var{dictionary},
+when true, causes the procedure to also return its dictionary or hash
+table.
+@end deffn
+
+@heading The `compress' and `uncompress' scripts
+
+Once the procedures are working, it is a simple task to write scripts
+that use them.  So we'll write scripts that are simplified versions
+Unix commands `compress' and `uncompress'.  These scripts will
+manipulate files with the following format.
+
+Each file will begin with a 3 byte header.
+@itemize
+@item
+Byte 1: @code{#x1F}
+@item
+Byte 2: @code{#x9D}
+@item
+Byte 3: Dictionary size, given as an 8-bit unsigned number between 9
+and 16 inclusive.  The number indicates a dictionary size from between
+2^9 and 2^16.
+@end itemize
+
+The rest of the file is the LZW-compressed 16-bit binary data stored
+in little-endian format.
+
+(Note that this may not be compatible with your operating system's
+version of @command{compress}.  The @command{compress} file format is
+not 100% consistent across platforms.)
+
+@example
+compress [-v] [-b bits] [name ...]
+@end example
+
+For each filename, @command{compress}, will create a LZW-compressed
+version of an input file.  The compressed file will have the same
+filename as the input file with the ".Z" extension appended to it.  If
+the compression is successful and the output file is successfully
+written, the input file will be deleted.
+
+If no filenames are given, @command{compress} will take the contents
+of stdin and send the compressed data to stdout.
+
+The optional @option{-b} @code{bits} parameter will indicate the
+maximum size of the dictionary.  If @code{bits} is given, it must be between
+9 and 16, indicating maximum dictionary sizes of @code{2^bits}.
+
+If the optional @option{-v} parameter is given, the script should
+print to stdout the compression ratio for each file processed.  If no
+file was specified and this program is thus compressing stdin to
+stdout, this flag is ignored.
+
+Compress should fail with appropriate error messages if any of the
+following problems occur 
+
+@itemize
+@item
+The command-line has unknown options or is otherwise incorrect
+@item
+The command line argument after a @option{-b} is out of range, non-numeric,
+or missing.
+@item
+The file associated with an input filename does not exist or is
+unreadable
+@item
+An input filename has a ".Z" suffix
+@item
+Writing the output file would overwrite a file that already exists
+@item
+Writing to disk fails for any reason
+@item
+Erasing the input file on completion fails for any reason
+@end itemize
+
+If an error occurs, the script should return the error code 1.
+Otherwise it returns the error code 0.
+
+@example
+uncompress [-v] [name ...]
+@end example
+
+@command{uncompress} will create an uncompressed version of a file
+generated by @command{compress}.  The uncompressed file with have the
+same filename as the input file with the ".Z" extension removed.  If
+the uncompression is successful and the output file is successfully
+written, the input file will be deleted.
+
+Also, like @command{compress}, if no filenames are given,
+@command{uncompress} takes the contents of stdin and uncompresses them
+to stdout.
+
+If the optional @option{-v} parameter is given, the script should
+print to stdout the compression ratio for each file processed.  If no
+file was specified and thus this program is compressing stdin to
+stdout, this flag is ignored.
+
+Uncompress should fail with appropriate error messages if any of the
+following problems occur
+
+@itemize
+@item
+The command-line has unknown options or is otherwise incorrect
+@item
+The file header is incorrect
+@item
+The bits parameter in the file header is out of range
+@item
+The file associated with the input filename does not exist or is
+unreadable
+@item
+The input compressed data is incorrect or corrupt, which can be
+detected by receiving an index that is not yet in the dictionary, or
+if an index value exceeds the number of entries in the dictionary as
+specified in the header, or if the last entry in the file not a
+complete 16-bit integer
+@item
+The input file does not end in ".Z"
+@item
+The output file would overwrite a file that already exists
+@item
+Writing to disk fails for any reason.
+@item
+Erasing the input file on completion fails for any reason
+@end itemize
+
+If an error occurs, the script should return the error code 1.
+Otherwise it returns the error code 0.
+
+@heading Rules and Suggestions for the Volunteer
+
+For this exercise, the volunteer is requested to use only Guile's
+library functions.  No external libraries are allowed.
+
+The volunteer is also requested to attempt to use one of Guile's 
+two sets of functions to help parse command line
+options: the @code{ice-9 getopt-long} module and the @code{srfi
+srfi-37} module.
 
 
 @node    References, List of Exercises, Theme 1, Top
