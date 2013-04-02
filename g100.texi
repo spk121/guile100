@@ -3,8 +3,8 @@
 @setfilename         g100
 @settitle            The Guile 100 Programs Project
 @comment
-@set utfversion      0.3
-@set utfversiondate  Mar 25, 2013
+@set utfversion      0.4
+@set utfversiondate  Apr 1, 2013
 @comment
 @comment             This is a Texinfo file.  To convert it to Info hypertext
 @comment             format, you will need the `makeinfo' program from the GNU
@@ -105,6 +105,12 @@ Theme 1: ``/bin''
 * Problem 1::                   echo and cat
 * Problem 2::                   ls
 * Problem 3::                   LZW Compression
+* Problem 4::
+
+Problem 4: tar file archives
+
+* ustar script::
+* ustar File Format::
 
 @end detailmenu
 @end menu
@@ -172,6 +178,7 @@ And so, without further ado, here is the first problem.
 * Problem 1::                   echo and cat
 * Problem 2::                   ls
 * Problem 3::                   LZW Compression
+* Problem 4::
 @end menu
 
 @node    Problem 1, Problem 2, Theme 1, Theme 1
@@ -504,7 +511,7 @@ Note that Guile has two sets of functions to help parse command line
 options: the @code{ice-9 getopt-long} module and the @code{srfi
 srfi-37} module.  You should use one of them.
 
-@node    Problem 3,  , Problem 2, Theme 1
+@node    Problem 3, Problem 4, Problem 2, Theme 1
 @section Problem 3: LZW Compression
 
 Lempel-Ziv-Welch compression is the basis of both the UNIX Compress
@@ -692,6 +699,245 @@ two sets of functions to help parse command line
 options: the @code{ice-9 getopt-long} module and the @code{srfi
 srfi-37} module.
 
+
+
+@node    Problem 4,  , Problem 3, Theme 1
+@section Problem 4: tar file archives
+
+This challenge is to write a simple archiving tool that is compatible
+with common POSIX tools.
+
+The @emph{ustar} interchange format is one of the simpler formats used
+for archive files that contain multiple files along with their
+metadata.
+
+We are going to create a script that creates @emph{ustar}-format
+files. But, to keep things simple, we are only going to use a small
+subset of the functionality that @emph{ustar} files can provide.  The
+result should be readable by common @command{tar} and @command{pax}
+tools.
+
+@menu
+* ustar script::
+* ustar File Format::
+@end menu
+
+@node ustar script
+@subsection @command{ustar} Script
+
+The @command{ustar} script will have a simple calling structure.
+
+@command{ustar} @code{archive file1 .. filen}
+
+It will create a new archive containing the files indicated on the
+command line.
+
+The script will have to handle many error conditions, including but
+not limited to
+@itemize
+@item
+filename contains characters not in the ustar-string's character set
+@item
+file part of filename is longer than 100 characters
+@item
+path part of filename is longer than 155 characters
+@item 
+file is a symbolic link, fifo, directory or any othet type of
+non-normal file
+@item 
+file's uname and gname contain characters not in ustar-string's
+character set
+@item 
+file's uname or gname are longer than 31 characters
+@item 
+file length is greater than 8,589,934,591 bytes, (octal 77777777777)
+@item 
+file's UID or GID is greater than 2,097,151 (octal 7777777)
+@item 
+system errors about inability to open, write, or close files.
+@end itemize
+
+@node ustar File Format,  , Problem 4, Problem 4
+@subsection The @emph{rustar} File Format
+
+First, I will describe our restricted @emph{ustar} file format, which,
+I'm going to dub @emph{rustar} for @emph{restricted ustar}, just so
+that we're clear that I'm talking about something more specific than
+the @emph{ustar} format.
+
+@heading File Structure
+
+A @emph{rustar} file contains a set of @emph{logical records}.  Each
+logical record represents the contents of a file plus its metadata.
+The logical records appear sequentially in the file, one after
+another, and there is no global header or footer in the file.
+
+@heading Logical Records
+
+Each logical record consists of three parts, a @emph{header} segment,
+the contents of the file a.k.a the @emph{data} segment, and a
+@emph{footer} segment.  Of these, only the @emph{header} requires a
+detailed explanation.
+
+@heading Header
+
+The header segment is a 512 byte block that contains metadata for a
+file.  The block is broken up into 16 fields of fixed length.  Each
+field contains data in one of three types.
+
+@heading Header Types
+
+Here we describe the three types that can appear in a header.  Each
+type has the annotation @code{[N]}.  The @emph{N} indicates that this
+field is a fixed-size that takes up @emph{N} bytes.
+
+@enumerate
+@item
+@code{rustar-string[N]} is a fixed-width string that contains only the
+codepoints listed below.  It is stored in the ASCII encoding, and, if
+necessary, is right padded with NULL bytes to ensure it occupies the
+whole of its @emph{N} bytes.  NULL bytes can only appear at the end of
+the string.  The string need not end with NULL bytes if it fills the
+whole of its fixed witdh.
+
+The list of allowed codepoints is
+@itemize
+@item
+U+20 to U+22
+@item
+U+25 to U+3F
+@item
+U+41 to U+5A
+@item
+U+5F
+@item
+U+61 to U+7A
+@item
+and U+00, but, U+00 can only be followed by more U+00.
+@end itemize
+
+@item
+@code{rustar-0string[N]} --- note the `0' --- is a fixed-width
+string with the same format and restrictions as a
+@code{rustar-string[N]} but with an addition restriction. It must end
+with at least one NULL byte.
+
+@item
+@code{rustar-number[N]} is an unsigned integer stored as a
+fixed-width string.  The string contains the the text representation
+of the integer in octal format.  The last byte (and only the last
+byte) of the string must be NULL.  The string is left-padded with the
+`0' character to ensure the number occupies the whole of its fixed
+width buffer.
+
+For example, a @code{rustar-number[8]} field for the integer 10 will
+be the string ``0000012'' followed by one byte of NULL. 12 octal equals
+10 decimal.
+@end enumerate
+
+@heading Header Fields
+
+The 16 fields in the 512 byte header block of a logical record are
+
+@multitable @columnfractions .25 .25 .50
+@headitem
+Field @tab Format @tab
+Description
+@item
+Name @tab string[100] @tab
+The filename by itself, with no directory information. The path
+separator character (U+2F), is not allowed.
+@item
+Mode @tab number[8] @tab
+A bitfield of the permissions.  See below.
+@item
+UID @tab number[8] @tab
+The User ID of the file
+@item
+GID @tab number[8] @tab
+The Group ID of the file
+@item
+Size @tab number[12] @tab
+The length of the file in bytes
+@item
+mtime @tab number[12] @tab
+The 32-bit integer modification time of the file.
+@item
+Checksum @tab number[8] @tab
+256 + the sum of all the bytes in this header except the checksum
+field.
+@item
+Typeflag @tab string[1] @tab
+Always ``0''.
+@item
+Link name @tab string[100] @tab
+Always 100 bytes of NULL.
+@item
+Magic @tab 0string[6] @tab
+The string ``ustar'' plus a NULL.
+@item
+Version @tab string[2] @tab
+The string ``00''.
+@item 
+uname @tab 0string[32] @tab
+The uname of the file.
+@item
+gname @tab 0string[32] @tab
+The gname of the file
+@item
+Dev-Major @tab number[8] @tab
+Always zero.
+@item
+Dev-Minor @tab number[8] @tab
+Always zero.
+@item
+Prefix @tab string[155] @tab
+Path information for this file.  If this file has no additional path
+information, this is all NULL.  Directory separation is represented by
+`/' forward slash.  The slash at the end is assumed, and should not be
+included explicitly.@footnote{For example: prefix ``foo'' + name
+``bar'' forms ``foo/bar''.  Prefix ``foo/'' + name ``bar'' forms
+``foo//bar''.  Don't do that.}
+@item
+Padding @tab 0string[12] @tab
+12 bytes of NULL.
+@end multitable
+
+The mode bitfield is a standard permissions bitfield:
+@itemize
+@item
+0x001 execute permission for 'other'
+@item
+0x002 write permission for 'other'
+@item
+0x004 read permission for 'other'
+@item
+0x008 exeute permission for 'group'
+@item
+0x010 write permission for group
+@item
+0x020 read permission for group
+@item
+0x040 execute permission for owner
+@item
+0x080 write permission for owner
+@item
+0x100 read permission for owner
+@item
+0x200 (unused)
+@item
+0x400 if is setgid
+@item
+0x800 if is setuid
+@end itemize
+
+@heading Data
+After the 512-byte header block, the binary contents of the file are
+stored.  The data segment is NULL-padded so that it ends on a 512-byte
+block boundary.
+
+@heading Footer
+The footer is 1024 bytes of NULL.
 
 @node    References, List of Exercises, Theme 1, Top
 @unnumbered References
