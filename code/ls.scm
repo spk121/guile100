@@ -14,8 +14,6 @@
 
 (define perror (cut format (current-error-port) <...>))
 
-(define (string-starts-with? s c) (eq? c (string-ref s 0)))
-
 (define (default-printer path st . rest)
   (format #t "~a~%" (basename path)))
 
@@ -84,7 +82,7 @@
 				       path (readlink path)) (basename path)))))
 
 (define (ls-dir dir-name dir-stat recursive? all? print-header? printer)
-  (let* ((not-hidden? (lambda (name) (not (string-starts-with? name #\.))))
+  (let* ((not-hidden? (lambda (name) (not (string-prefix? "." name))))
 	 (enter? (lambda (path st)
 		   (or (and (or all? (not-hidden? (basename path))) recursive?)
 		       (eq? (stat:ino st) (stat:ino dir-stat))))))
@@ -152,7 +150,7 @@
 	      '((paths))))
        (paths (if (null? (assq-ref args 'paths)) '(".") (assq-ref args 'paths)))
        (printer (if (assq-ref args 'long?) long-printer default-printer))
-       (abs-path? (lambda (path) (string-starts-with? path #\/)))
+       (abs-path? (lambda (path) (string-prefix? "/" path)))
        (ls-dir-cut (cut ls-dir <> <>
 			(assq-ref args 'recursive?) (assq-ref args 'all?)
 			(> (length paths) 1)
