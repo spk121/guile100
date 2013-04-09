@@ -1,6 +1,9 @@
 #! /usr/local/bin/guile -s
 !#
 
+;; A solution to Guile 100 Problem #2 `ls'
+;; Contributed by Jez Ng.
+
 (use-modules (srfi srfi-1) ; fold, map etc
 	     (srfi srfi-26) ; cut (partial application)
 	     (srfi srfi-37) ; args-fold
@@ -8,13 +11,7 @@
 	     (ice-9 format)
 	     (ice-9 i18n))
 
-(define path-separator "/")
-
-(define (path-append path name) (string-append path path-separator name))
-
 (define perror (cut format (current-error-port) <...>))
-
-(define (string-starts-with? s c) (eq? c (string-ref s 0)))
 
 (define (default-printer path st . rest)
   (format #t "~a~%" (basename path)))
@@ -25,8 +22,8 @@
   (let*
       ((bits-set?
 	(lambda (bits . masks)
-	  (let ((mask (fold logior 0 masks)))
-	    (eq? mask (logand bits mask)))))
+	  (let ((mask (apply logior masks)))
+	    (= mask (logand bits mask)))))
        (permission-string
 	(lambda (perms)
 	  (let* ((setuid-bit #o4000)
@@ -71,7 +68,7 @@
 	       ((char-special) #\c)
 	       ((fifo) #\p)
 	       (else #\?)))
-       (digits (lambda (n) (if (eq? n 0) 0 (1+ (ceiling (log10 n)))))))
+       (digits (lambda (n) (if (= n 0) 1 (1+ (inexact->exact (ceiling (log10 n))))))))
     (format #t "~a~a ~vd ~va ~va ~vd ~a ~a\n"
 	    type
 	    (permission-string (stat:perms st))
@@ -80,26 +77,27 @@
 	    max-groupname-length (group:name (getgrgid (stat:gid st)))
 	    (digits max-size) (stat:size st)
 	    (format-time (stat:mtime st))
-	    (if (eq? type #\l) (format #f "~a -> ~a"
-				       path (readlink path)) (basename path)))))
+	    (if (char=? type #\l)
+		(format #f "~a -> ~a" path (readlink path))
+		(basename path)))))
 
 (define (ls-dir dir-name dir-stat recursive? all? print-header? printer)
-  (let* ((not-hidden? (lambda (name) (not (string-starts-with? name #\.))))
+  (let* ((not-hidden? (lambda (name) (not (string-prefix? "." name))))
 	 (enter? (lambda (path st)
 		   (or (and (or all? (not-hidden? (basename path))) recursive?)
-		       (eq? (stat:ino st) (stat:ino dir-stat))))))
+		       (= (stat:ino st) (stat:ino dir-stat))))))
     (let recurse ((tree (file-system-tree dir-name enter?))
 		  (parent-path `(,(dirname dir-name)))
 		  (top-level? #t))
       ;; `file-system-tree' returns a structure of the form
       ;; (string basename, object stat, tree children)
       (let* ((path (cons (car tree) parent-path))
-	     (path-string (string-join (reverse path) path-separator))
+	     (path-string (string-join (reverse path) file-name-separator-string))
 	     (children
 	      (filter
 	       (lambda (tree) (or all? (not-hidden? (car tree))))
-	       (sort (let ((current-dir-path (path-append path-string "."))
-			   (parent-dir-path (path-append path-string "..")))
+	       (sort (let ((current-dir-path (in-vicinity path-string "."))
+			   (parent-dir-path (in-vicinity path-string "..")))
 		       (cons (list current-dir-path (lstat current-dir-path))
 			     (cons (list parent-dir-path (lstat parent-dir-path))
 				   (cddr tree))))
@@ -119,7 +117,7 @@
 	(if (or (not top-level?) print-header?) (format #t "~a:~%" path-string))
 	(for-each (lambda (child)
 		    (printer
-		     (path-append path-string (car child))
+		     (in-vicinity path-string (car child))
 		     (cadr child)
 		     max-nlinks max-size max-uname-length max-groupname-length))
 		  children)
@@ -152,7 +150,7 @@
 	      '((paths))))
        (paths (if (null? (assq-ref args 'paths)) '(".") (assq-ref args 'paths)))
        (printer (if (assq-ref args 'long?) long-printer default-printer))
-       (abs-path? (lambda (path) (string-starts-with? path #\/)))
+       (absolute-file-name? (lambda (path) (string-prefix? "/" path)))
        (ls-dir-cut (cut ls-dir <> <>
 			(assq-ref args 'recursive?) (assq-ref args 'all?)
 			(> (length paths) 1)
@@ -171,7 +169,7 @@
 				  (let ((linked-path (readlink path)))
 				    (if (abs-path? linked-path)
 					(linked-path)
-					(path-append (dirname path)
+					(in-vicinity (dirname path)
 						     linked-path)))
 				  (stat path))))
 		  (else (printer path st)))))

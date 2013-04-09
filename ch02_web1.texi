@@ -1,0 +1,194 @@
+@node    Theme 2, , Theme 1, Top
+@chapter Theme 2: Web 1.0
+
+@tie{}@image{img/T}he second theme in this project is ``Web 1.0'',
+where we'll talk about interacting with the internet as it existed in
+the 1990s.
+
+The 1990s began with emergence of Gopher clients and servers.  The
+Internet Gopher protocol visualized the world as a series of folders.
+The folders usually contained plain-text documents or media files like
+@acronym{GIFs} or AU audio.  This was before both @acronym{HTML} and
+@acronym{PDF}, so mixing text and graphics in a single file wasn't as
+common, and, if it did occur, it was in formats such as PostScript.
+
+The @acronym{HTTP}-and-@acronym{HTML}-based internet is linked to the
+appearance of the @acronym{NCSA} Mosaic browser and the @acronym{NCSA}
+@acronym{httpd} server.  There were precursors, but, as a practical
+matter, 1993 was the beginning of the @acronym{HTTP}/@acronym{HTML}
+web.
+
+But, in those days, before @acronym{AJAX} or Flash, most of the
+content was static @acronym{HTML} content or dynamic content created
+by @acronym{CGI} scripts.  In this context, before the concept of
+cookies was developed in 1994, personalization of content for
+different users was not practical.
+
+JavaScript appeared in Netscape Navigator 2.0 in 1995 and Internet
+Explorer 3.0, in late 1996, but, with incompatibilities between the
+two implementations.  Before 1996, almost all content was static and
+generated on the server side.  This early Web had a more strongly
+defined separation between client and server.
+
+The early Web pages had stylistic quirks that are less common today.
+Before @acronym{CSS2}, Web page layouts were often created by using
+tables.  Blinking text, animated @acronym{GIFs}, embedded
+@acronym{MIDI} tunes were common.
+
+By the end of the decade, Linux, Apache (1995), @acronym{MySQL}
+(1995), and @acronym{PHP} (1995) were all quite functional.  Those
+programs, in conjunction with Perl, which first appeared in the 80s,
+became the building blocks of the famous @acronym{LAMP} stack.  This
+free, open software stack allowed for some of the common types of
+interactivity to which we have become accustomed.
+
+Early @acronym{PHP} used a paradigm that allowed for rapid generation
+of Web pages.  @acronym{PHP} used a model where code that was embedded
+within otherwise static @acronym{HTML} web pages.  When those pages
+were requested, the embedded @acronym{PHP} code was run, and its
+output became @acronym{HTML} content.  This paradigm had its strengths
+and limitations, but, was quite popular at the time.
+
+So, in our second theme we'll imagine that @acronym{GUILE} was part of
+the ecosystem that made up the 1990s Internet experience, and we'll
+see what tools and libraries exists to make that happen.
+Specifically, we'll take a look at
+@itemize
+@item
+the Internet Gopher protocol
+@item
+on-the-fly evaluation of code embedded within @acronym{HTML} documents
+@item
+@acronym{CGI} scripting
+@item
+the Linux Apache @acronym{GUILE} @acronym{MySQL} stack
+@item
+and the animated @acronym{GIF} format.
+@end itemize
+
+And away we go.
+
+@menu
+* Problem 5::                   PHP-style GUILE
+@end menu
+
+@node Problem 5,  , Theme 2, Theme 2
+@section Problem 5: PHP-style GUILE
+
+One of the programming paradigms of Web 1.0 was the @acronym{PHP}
+programming model, where code was embedded within @acronym{HTML}.  The
+code was run when a client requested the file from the server, and any
+output printed by the execution of the code became embedded in the
+@acronym{HTML} when it was sent to the client. The code enclosed
+between the @code{<?php} and @code{?>} tags is evaluated when the file
+is requested.  Anything printed to stdout appears in the @acronym{HTML}
+document.
+
+@verbatim
+<!DOCTYPE html>
+<html>
+  <body>
+
+    <?php
+      echo "My first PHP script!";
+    ?>
+
+  </body>
+</html>
+@end verbatim
+
+Today's challenge is to re-create the PHP programming model in Guile,
+making something like this.
+
+@verbatim
+<!DOCTYPE html>
+<html>
+  <body>
+    <p>
+      <?scm
+        (display "A Guile Script!")
+      ?>
+    </p>
+    <p>
+      <?scm:d "A string" ?>
+    </p>
+  </body>
+</html>
+@end verbatim
+
+The tags @code{<?scm} and @code{?>} will enclose Scheme code, which
+will be evaluated.  The value of the last expression is discarded.
+
+The tags @code{<?scm:d} and @code{?>} will enclose Scheme code to be
+evaluated.  The value of the last expression is displayed using the
+@code{display} procedure.
+
+To make this happen, we need to write a @acronym{CGI} script in
+@acronym{GUILE} that does the preprocessing and interpretation.
+
+It should be possible to do that fairly easily with the help of two
+existing projects: `guile-www' and `eguile'.  guile-www has routines
+for CGI scripts.  eguile is a html-preprocessor that does the scheme
+interpretation, but, it is a bit out of date.
+
+Thus, we'll be creating a scheme script that uses guile-www for CGI
+processing and that includes an updated version of eguile.
+
+We'll call this script "ghp.cgi": guile hypertext processor.
+
+That script will expect that extra path information is given after the
+script name, like so:
+
+http://localhost/cgi-bin/ghp.cgi/FILENAME
+
+Any normal webserver should put the extra path information for the CGI
+script in the PATH_INFO environment variable.
+
+The script should load the file named FILENAME from some sensible
+default path.  Like any sane CGI script, it should strip out any ".."
+in the path, or maybe just fail if there are ".." in the path.
+
+The file named FILENAME should be valid HTML possibly augmented with
+scheme code in @code{<?scm} tags.
+
+Any scheme code will be executed sequentially as is it found in the
+file.  Each code snippet will be evaluated within the same
+environment.  For example, a top-level variable defined within one tag
+will remain defined in the next tag.
+
+For this demo, there is no need to handle nesting of these tags.
+
+You can find guile-www at @url{http://nongnu.org/guile-www}
+
+You can find eguile at @url{woozle.org/~neale/src/eguile/}
+
+---
+
+To prove that the CGI script functions correctly, write an HTML
+document that contains embedded Guile code.  Then, use the CGI script
+to evaluate the HTML document.
+
+At the top of the HTML page, use embedded Guile code to print the
+current time.
+
+Below that, use embedded Guile code to programmatically re-create the
+following table.
+
+The page will have a two column table of x vs sin(x).  If sin(x) is
+zero, the color of the font should be black.  If sin(x) is positive,
+the color of the font should be green.  If sin(x) is negative, the
+color of the font should be blue.
+
+@verbatim
+x   |   sin(x)
+--------------
+0   | 0       <-- this row is black
+0.5 | 0.479   <-- green
+1.0 | 0.841   <-- green
+1.5 | 0.997   <-- green
+2.0 | 0.909   <-- green
+2.5 | 0.598   <-- green
+3.0 | 0.141   <-- green
+3.5 |-0.350   <-- blue 
+@end verbatim
+
