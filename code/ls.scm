@@ -150,7 +150,6 @@
 	      '((paths))))
        (paths (if (null? (assq-ref args 'paths)) '(".") (assq-ref args 'paths)))
        (printer (if (assq-ref args 'long?) long-printer default-printer))
-       (absolute-file-name? (lambda (path) (string-prefix? "/" path)))
        (ls-dir-cut (cut ls-dir <> <>
 			(assq-ref args 'recursive?) (assq-ref args 'all?)
 			(> (length paths) 1)
@@ -167,8 +166,8 @@
 				 (printer path st)
 				 (ls-dir-cut
 				  (let ((linked-path (readlink path)))
-				    (if (abs-path? linked-path)
-					(linked-path)
+				    (if (absolute-file-name? linked-path)
+					linked-path
 					(in-vicinity (dirname path)
 						     linked-path)))
 				  (stat path))))

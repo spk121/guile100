@@ -35,29 +35,28 @@ Before @acronym{CSS2}, Web page layouts were often created by using
 tables.  Blinking text, animated @acronym{GIFs}, embedded
 @acronym{MIDI} tunes were common.
 
-By the end of the decade, Linux, Apache (1995), @acronym{MySQL}
-(1995), and @acronym{PHP} (1995) were all quite functional.  Those
-programs, in conjunction with Perl, which first appeared in the 80s,
-became the building blocks of the famous @acronym{LAMP} stack.  This
-free, open software stack allowed for some of the common types of
-interactivity to which we have become accustomed.
+By the end of the decade, Linux, Apache, MySQL, and @acronym{PHP} were
+all quite functional.  Those programs, in conjunction with Perl, which
+first appeared in the 80s, became the building blocks of the famous
+@acronym{LAMP} stack.  This free, open software stack allowed for some
+of the common types of interactivity to which we have become
+accustomed.
 
-Early @acronym{PHP} used a paradigm that allowed for rapid generation
-of Web pages.  @acronym{PHP} used a model where code that was embedded
-within otherwise static @acronym{HTML} web pages.  When those pages
-were requested, the embedded @acronym{PHP} code was run, and its
-output became @acronym{HTML} content.  This paradigm had its strengths
-and limitations, but, was quite popular at the time.
+@acronym{PHP} used a model that allowed for rapid generation of Web
+pages, where code was embedded within otherwise static @acronym{HTML}
+web pages.  When those pages were requested, the embedded
+@acronym{PHP} code was run, and its output became @acronym{HTML}
+content.
 
-So, in our second theme we'll imagine that @acronym{GUILE} was part of
-the ecosystem that made up the 1990s Internet experience, and we'll
-see what tools and libraries exists to make that happen.
-Specifically, we'll take a look at
+So, in our second theme we'll imagine what the world would have been
+like if @acronym{GUILE} were part of the ecosystem that made up the
+1990s Internet experience.  Specifically, we'll take a look at using
+Guile for
 @itemize
 @item
-the Internet Gopher protocol
-@item
 on-the-fly evaluation of code embedded within @acronym{HTML} documents
+@item
+the Internet Gopher protocol
 @item
 @acronym{CGI} scripting
 @item
@@ -160,7 +159,7 @@ For this demo, there is no need to handle nesting of these tags.
 
 You can find guile-www at @url{http://nongnu.org/guile-www}
 
-You can find eguile at @url{woozle.org/~neale/src/eguile/}
+You can find eguile at @url{http://woozle.org/~neale/src/eguile/}
 
 ---
 
