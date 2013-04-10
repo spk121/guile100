@@ -2,7 +2,7 @@
 @chapter Theme 2: Web 1.0
 
 @tie{}@image{img/T}he second theme in this project is ``Web 1.0'',
-where we'll talk about interacting with the internet as it existed in
+where we'll talk about interacting with the Internet as it existed in
 the 1990s.
 
 The 1990s began with emergence of Gopher clients and servers.  The
@@ -68,11 +68,11 @@ and the animated @acronym{GIF} format.
 And away we go.
 
 @menu
-* Problem 5::                   PHP-style GUILE
+* Problem 5::                   PHP-Style GUILE
 @end menu
 
 @node Problem 5,  , Theme 2, Theme 2
-@section Problem 5: PHP-style GUILE
+@section Problem 5: PHP-Style GUILE
 
 One of the programming paradigms of Web 1.0 was the @acronym{PHP}
 programming model, where code was embedded within @acronym{HTML}.  The
@@ -96,6 +96,8 @@ document.
 </html>
 @end verbatim
 
+When it first arrived on the scene, PHP was CGI executable.
+
 Today's challenge is to re-create the PHP programming model in Guile,
 making something like this.
 
@@ -115,79 +117,98 @@ making something like this.
 </html>
 @end verbatim
 
-The tags @code{<?scm} and @code{?>} will enclose Scheme code, which
-will be evaluated.  The value of the last expression is discarded.
+This should be pretty easy, since all the parts are already in place.
+They just need to be glued together.
 
-The tags @code{<?scm:d} and @code{?>} will enclose Scheme code to be
-evaluated.  The value of the last expression is displayed using the
-@code{display} procedure.
+@heading Mixing HTML and Scheme
 
-To make this happen, we need to write a @acronym{CGI} script in
-@acronym{GUILE} that does the preprocessing and interpretation.
+To start, there is an abandonware project called @dfn{Eguile}.  When
+given a file that is a mix of @acronym{HTML} and of Guile code, it can
+run it @acronym{PHP} style.  The HTML text will be passed through
+unmodified to the output, and Scheme code will be executed, and
+anything that the Scheme code displays to the current output port will
+be passed through as well.
 
-It should be possible to do that fairly easily with the help of two
-existing projects: `guile-www' and `eguile'.  guile-www has routines
-for CGI scripts.  eguile is a html-preprocessor that does the scheme
-interpretation, but, it is a bit out of date.
+Eguile does this by recognizing two new tags.
+@itemize
+@item
+@samp{<?scm} and @samp{?>} enclose Scheme code, which Eguile
+will pass to Guile for evaluation.
+@item
+@samp{<?scm:d} (note the @samp{:d}) and @samp{?>} also
+enclose Scheme code to be evaluated, just like the @samp{<?scm} tags.
+Additionally, Eguile will display the value of the last expression
+using the @code{display} procedure.
+@end itemize
 
-Thus, we'll be creating a scheme script that uses guile-www for CGI
-processing and that includes an updated version of eguile.
+@heading Making a CGI Script
 
-We'll call this script "ghp.cgi": guile hypertext processor.
+Eguile by itself is not a complete solution.  It can run mixed
+@acronym{HTML} and Guile code through the Guile interpreter, but, it
+doesn't have any hooks to connect it to the webserver.
 
-That script will expect that extra path information is given after the
-script name, like so:
+To make this happen, we can add some framework code to have Eguile run
+as part of a @acronym{CGI} script.
 
-http://localhost/cgi-bin/ghp.cgi/FILENAME
+The quickest way to make a @acronym{CGI} script is to use the
+functions provided by the @dfn{Guile-WWW} project.  Guile-WWW has
+routines that provide @acronym{CGI} functionality.
 
-Any normal webserver should put the extra path information for the CGI
-script in the PATH_INFO environment variable.
+Thus, we'll be creating a Scheme script that uses Guile-WWW for
+@acronym{CGI} processing and that includes an updated version of
+Eguile.
 
-The script should load the file named FILENAME from some sensible
-default path.  Like any sane CGI script, it should strip out any ".."
-in the path, or maybe just fail if there are ".." in the path.
+@heading URL Parsing
 
-The file named FILENAME should be valid HTML possibly augmented with
-scheme code in @code{<?scm} tags.
+We'll call this script @file{ghp.cgi}. @acronym{ghp} is short for
+Guile HTML Processor.  For any basic webserver, you can put the
+@file{ghp.cgi} in the @file{cgi-bin} directory, and run it by pointing
+your browser to something like
+@indicateurl{http://localhost/cgi-bin/ghp.cgi}.
 
-Any scheme code will be executed sequentially as is it found in the
-file.  Each code snippet will be evaluated within the same
-environment.  For example, a top-level variable defined within one tag
-will remain defined in the next tag.
+But wait!  We have to tell @file{ghp.cgi} what HTML-and-Scheme file it
+needs to process and output.  One way is to have @file{ghp.cgi} parse
+any extra path information at the end of its @acronym{URL}.
 
-For this demo, there is no need to handle nesting of these tags.
+That script can parse extra path information is given after the script
+name, like so:
 
-You can find guile-www at @url{http://nongnu.org/guile-www}
+@indicateurl{http://localhost/cgi-bin/ghp.cgi/@strong{FILENAME}}
 
-You can find eguile at @url{http://woozle.org/~neale/src/eguile/}
+Any normal webserver should put the extra path information for the
+@acronym{CGI} script in the @env{PATH_INFO} environment variable.
 
----
+The @file{ghp.cgi} script should load an @acronym{HTML}-and-Guile file
+named @var{FILENAME} from some sensible default path, process it
+through Eguile, and then serve it back to the client.
 
-To prove that the CGI script functions correctly, write an HTML
-document that contains embedded Guile code.  Then, use the CGI script
-to evaluate the HTML document.
+Like any sane @acronym{CGI} script that processes a @acronym{URL},
+@file{ghp.cgi} should strip out any @file{/../} in the path, or maybe
+just fail if there are @file{/../} in the path.
 
-At the top of the HTML page, use embedded Guile code to print the
-current time.
+@heading The Task at Hand
 
-Below that, use embedded Guile code to programmatically re-create the
-following table.
+The task is to write a @acronym{CGI} script that
+@enumerate
+@item
+inspects its @env{PATH_INFO} to see if an extra filename appears at
+the end of the @acronym{URL} used to call the script
+@item
+passes a file by that filename through the Eguile processing procedure
+@item
+and sends it back to the client
+@end enumerate
+If a file by that filename doesn't exist, the script should return a
+@acronym{HTTP} 404 ``Not Found'' error.
 
-The page will have a two column table of x vs sin(x).  If sin(x) is
-zero, the color of the font should be black.  If sin(x) is positive,
-the color of the font should be green.  If sin(x) is negative, the
-color of the font should be blue.
+@* Truly, this statement of the problem will probably be much longer
+than the @file{ghp.cgi} file I'm asking you to create.  But, once the
+@acronym{CGI} script is in place, we can serve up mixed HTML and
+Scheme content just like @acronym{PHP} 3 did way back in 1997.
 
-@verbatim
-x   |   sin(x)
---------------
-0   | 0       <-- this row is black
-0.5 | 0.479   <-- green
-1.0 | 0.841   <-- green
-1.5 | 0.997   <-- green
-2.0 | 0.909   <-- green
-2.5 | 0.598   <-- green
-3.0 | 0.141   <-- green
-3.5 |-0.350   <-- blue 
-@end verbatim
+You can find Guile-WWW at @url{http://nongnu.org/guile-www}.
 
+For the moment, you can find Eguile at
+@url{http://woozle.org/~neale/src/eguile/}.  Remember that it is
+abandonware, so don't bug the owner with questions.  We're going to
+find a new home and maintainer for Eguile in the near future.
