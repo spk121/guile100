@@ -32,7 +32,6 @@
 
 @titlepage
 @title  The Guile 100 Programs Project
-@sp 0.2
 @subtitle @value{utfversion} - @value{utfversiondate}
 @author Edited by Michael Gran
 
@@ -41,7 +40,6 @@
 @noindent
 @copyright{} 2013 by Michael Gran
 
-@sp 0.5
 @noindent
 100 Guile Programs
 
@@ -49,7 +47,6 @@
 This work is licensed under GFDL 1.3+@*
 (@url{http://www.gnu.org/licenses/fdl.html, GFDL 1.3+}).
 
-@sp 0.5
 @noindent
 A Lonely Cactus Production@*
 Los Angeles, California 
@@ -184,7 +181,6 @@ that it has been prepared with the help of a computer.
 (Volume 1 of @cite{The Art of Computer Programming}) 
 @end quotation
 
-@sp 1.7
 
 @printindex cp
 
