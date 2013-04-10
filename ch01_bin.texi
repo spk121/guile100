@@ -289,49 +289,70 @@ In the default format, the filenames are output one per line.  You can
 print them out in a columnar format if you like, though.
 
 In the long format, the file information will be printed as follows
-@multitable @columnfractions 0.2 0.2 0.6
+@multitable @columnfractions 0.2 0.1 0.68
 @headitem
 Field @tab Length @tab Description
 @item
-Type @tab 1 @tab `d' for directory, `-' for regular file, `b' for block
-special file, `l' for symbolic link, `c' for character special file,
-and `p' for fifo
+Type @tab 1 @tab
+`d' for directory@*
+`-' for regular file@*
+`b' for block special file@*
+`l' for symbolic link@*
+`c' for character special file@*
+`p' for fifo
 @item
-User Read @tab 1 @tab `r' if the file or directory is readable by the owner or
-`-' if it is not
+User Read @tab 1 @tab
+`r' if readable by the owner@*
+`-' otherwise
 @item
-User Write @tab 1 @tab `w' if the file or directory is writable by the owner or
-`-' if it is not.
+User Write @tab 1 @tab
+`w' if twritable by the owner@*
+`-' otherwise
 @item
-User Execute @tab 1 @tab `S' if the file is not executable and the set-user-ID
-mode is set, `s' if the file is executable and the set-user-ID mode is
-set, `x' if the file is executable or the directory is searchable by
-the owner, or `-' otherwise
+User Execute @tab 1 @tab
+`S' if the file is not executable and the set-user-ID
+mode is set@*
+`s' if the file is executable and the set-user-ID mode is
+set@*
+`x' if the file is executable or the directory is searchable by
+the owner@*
+`-' otherwise
 @item
 Group Read @tab 1 @tab
-`r' if the file or directory is readable
-by the group or `-' if it is not
+`r' if readable by the group@*
+`-' otherwise
 @item
-Group Write @tab 1 @tab `w' if the file or directory is writable by the group or
-`-' if it is not
+Group Write @tab 1 @tab
+`w' if writable by the group@*
+`-' otherwise
 @item
-Group Execute @tab 1 @tab `S' if the file is not executable and
-the set-group-ID mode is set, `s' if the file is executable and the
-set-group-ID mode is set, `x' if the file is exectuable or the
-directory is searchable by members of this group, or `-' otherwise
+Group Execute @tab 1 @tab
+`S' if the file is not executable and
+the set-group-ID mode is set@*
+`s' if the file is executable and the
+set-group-ID mode is set@*
+`x' if the file is exectuable or the
+directory is searchable by members of this group@*
+`-' otherwise
 @item
-Other Read @tab 1 @tab `r' if the file or directory is readable
-by others or `-' otherwise
+Other Read @tab 1 @tab
+`r' if readable by others@*
+`-' otherwise
 @item 
-Other Write @tab 1 @tab `w' if the file or directory is writable
-by others or `-' otherwise
+Other Write @tab 1 @tab
+`w' if writable by others@*
+`-' otherwise
 @item
-Other Execute @tab 1 + space @tab T' if the file is a directory and the
+Other Execute @tab 1 + space @tab
+`T' if the file is a directory and the
 search permission is not granted to others and the restricted
-deletion flag is set, `t' if the file is a directory and the search
+deletion flag is set@*
+`t' if the file is a directory and the search
 permission is granted to others and the restricted deletion flag is
-set, `x' if the file is executable or the directory is searchable by
-others, or `-' otherwise
+set@*
+`x' if the file is executable or the directory is searchable by
+others@*
+`-' otherwise
 @item
 Link Count @tab @tab
 For a directory, number of immediate
@@ -350,8 +371,8 @@ been modified in the last six months, or ``month day year'' format
 otherwise
 @item
 Pathname @tab @tab
-Dor links is in the format ``<link name> -> <path to
-linked file or directory>''
+For non-links, the path@*
+For links, ``<link name> -> <path to linked file or directory>''
 @end multitable
 
 The exit code should be zero except in those error cases described
@@ -651,7 +672,7 @@ detailed explanation.
 @heading Header
 
 The header segment is a 512 byte block that contains metadata for a
-file.  The block is broken up into 16 fields of fixed length.  Each
+file.  The block is broken up into 17 fields of fixed length.  Each
 field contains data in one of three types.
 
 @heading Header Types
@@ -706,7 +727,7 @@ be the string ``0000012'' followed by one byte of NULL. 12 octal equals
 
 @heading Header Fields
 
-The 16 fields in the 512 byte header block of a logical record are
+The 17 fields in the 512 byte header block of a logical record are
 
 @multitable @columnfractions .25 .25 .50
 @headitem
