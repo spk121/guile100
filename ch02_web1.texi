@@ -212,3 +212,8 @@ For the moment, you can find Eguile at
 @url{http://woozle.org/~neale/src/eguile/}.  Remember that it is
 abandonware, so don't bug the owner with questions.  We're going to
 find a new home and maintainer for Eguile in the near future.
+
+There is another version of Eguile at @*
+@url{https://github.com/spk121/guile100/blob/master/code/eguile.scm}
+which removes the SLIB dependency and is slightly modernized.
+
