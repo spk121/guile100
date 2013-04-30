@@ -1,0 +1,130 @@
+body {
+    /* margin: 0; */
+    /* padding: 0; */
+    /* background-color: #FFFFFF; */
+    /* font-family:"Trebuchet MS", Arial, Helvetica, sans-serif; */
+}
+
+/* All the content is in a container to keep the width from being
+   too wide */
+
+#container
+{
+    /* background-color: #F0F0F0; */
+    /* margin: 1em 10% 1em 10%; */
+    /* padding: 1em 1em 1em 1em; */
+}
+
+/*
+  The header bar should be
+  1. graphic logo on the top-left
+  2. pic at top-right
+  3. h1 at bottom left
+  */
+
+header {
+   /* position: absolute; */
+   /* top: 60px;	 */
+   /* color: #88CCFF; */
+}
+
+h1 { 
+    /* text-align: center; */
+    /* rotation:355deg; */
+    /* rotation-point:50% 50%; */
+}
+
+/*
+  Below the header are the tabs: three tab boxes
+*/
+.box-wrap {
+    position: relative;
+    min-height: 250px;
+}
+.tabbed-area {
+    margin: 0 0 120px 0;
+}
+.tabbed-area div div { 
+    background: white; padding: 20px; min-height: 680px; position: absolute; top: -1px; left: 0; width: 100%;
+}
+.tabbed-area div div, .tabs li a { 
+    border: 1px solid #ccc;
+}
+.tabs { 
+    list-style: none;
+    z-index: 2;
+    position: relative;
+}
+.tabs li { 
+    display: inline;
+}
+.tabs li a { 
+    color: black;
+    float: left;
+    display: block;
+    padding: 4px 10px;
+    margin-left: -1px;
+    position: relative;
+    left: 1px;
+    background: white;
+    text-decoration: none; 
+    background: -moz-linear-gradient(top, white, #eee);
+}
+.tabs li a:hover {
+    background: #ccc;
+}
+.group:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+}
+#box-one:target .box-one { 
+    z-index: 1;
+}
+#box-two:target .box-two { 
+    z-index: 1;
+}
+#box-three:target .box-three { 
+    z-index: 1;
+}
+#box-one:target a[href="#box-one"] { 
+    border-bottom: 1px solid white;
+    background: white;
+}
+#box-two:target a[href="#box-two"] { 
+    border-bottom: 1px solid white;
+    background: white;
+}
+#box-three:target a[href="#box-three"] {
+    border-bottom: 1px solid white;
+    background: white;
+}
+
+/*
+  Inside the tabs, H2 is the main heading.  Below H2, the text and H3
+  are going to be in a blue box with radiused corners.
+  */
+h2 {
+/*   color: #202474;
+   font-size: 1.5em;
+   padding: 0px;
+   margin: 0px; */
+}
+
+.bluebox {
+/*   background-color: #0086C3;
+   color: #88CCFF;
+   width: 78%;	
+   border-radius: 10px;
+   padding: 15px;
+   padding-left: 20px;
+   line-height: 1.3em; */
+}
+
+h3 {
+/*   color: white; */
+}
+
