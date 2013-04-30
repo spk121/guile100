@@ -3,8 +3,8 @@
 @setfilename         g100
 @settitle            The Guile 100 Programs Project
 @comment
-@set utfversion      0.5
-@set utfversiondate  Apr 8, 2013
+@set utfversion      0.6
+@set utfversiondate  Apr 22, 2013
 @comment
 @comment             This is a Texinfo file.  To convert it to Info hypertext
 @comment             format, you will need the `makeinfo' program from the GNU
@@ -26,6 +26,19 @@
 @cindex \term\
 @dfn{\term\}
 @end macro
+
+@ifhtml
+@macro css{classname, text}
+@inlineraw{html, <span class="\classname\">\text\<span>}
+@end macro
+@end ifhtml
+
+@ifnothtml
+@macro css{classname, text}
+\text\
+@end macro
+@end ifnothtml
+
 
 @c @setchapternewpage odd
 @setshortcontentsaftertitlepage
@@ -58,7 +71,7 @@ Los Angeles, California
 @c to suppress the black boxes after overfull lines:
 @finalout
 
-@node Top, Theme 1, (dir), (dir)
+@node Top, Preface, (dir), (dir)
 
 @ifinfo
 
@@ -86,14 +99,12 @@ Guile, an implementation of the Scheme language.
 @end ifhtml
 
 @menu
-* Preface::
-* Acknowledgments::
-* Theme 1::                     ``/bin''
-* Theme 2::                     Web 1.0
-* References::
-* List of Exercises::
-* List of Figures::
-* Index::
+* Preface::                     
+* Acknowledgements::            
+* Theme 1::                     
+* Theme 2::                     
+* References::                  
+* Index::                       
 
 @detailmenu
  --- The Detailed Node Listing ---
@@ -105,83 +116,19 @@ Theme 1: ``/bin''
 * Problem 3::                   LZW Compression
 * Problem 4::                   tar file archives
 
-Problem 4: tar file archives
-
-* ustar script::
-* ustar File Format::
-
 Theme 2: Web 1.0
 
-* Problem 5::                   PHP-style GUILE
+* Problem 5::                   PHP-Style GUILE
+* Problem 6::                   CGI and MySQL
 
 @end detailmenu
 @end menu
 
-@node    Preface, Acknowledgments, Top, Top
-@unnumbered Preface
-
-@tie{}@image{img/T}his book aspires to be a useful set of examples
-about how one might use @acronym{GNU} Guile.
-
-One of the interesting things about the Scheme community is that they
-are perhaps @emph{too clever}.  The depth and complexity of their
-thinking about computer languages is intense and wonderful.
-
-And yet, some times you just want to do something mundane.  Where are
-the resources for how to use Scheme -- and specifically Guile -- for
-quotidian tasks?
-
-Well, this document will be it, if all goes according to plan.
-
-@node       Acknowledgments, References, Preface, Top
-@unnumbered Acknowledgments
-
-@tie{}@image{img/T}hanks the many people who have helped us develop this book.
-@itemize
-@item
-Chris K Jester-Young contributed the original version of the @command{echo}
-and @command{cat} scripts for Problem 1.
-@item
-Jez Ng contributed the original version of @command{ls} for Problem 2.
-@end itemize
-
+@include preface.texi
+@include acknowledgements.texi
 @include ch01_bin.texi
 @include ch02_web1.texi
-
-@node    References, List of Exercises, Acknowledgments, Top
-@unnumbered References
-
-@anchor{Allen 1978}
-Allen, John.  1978.  @cite{Anatomy of Lisp}. New York: McGraw-Hill.
-
-@anchor{ANSI 1994}
-@acronym{ANSI} X3.226-1994. @cite{American National Standard for Information
-Systems@/---Programming Language---Common Lisp}.
-
-@anchor{IEEE 2004}
-The @acronym{IEEE} and The Open Group. 2001-2004. @cite{The Open Group Base Specifications Issue
-6@/ IEEE Std 1003.1, 2004 Edition}.
-
-@node    List of Exercises, List of Figures, References, Top
-@unnumbered List of Exercises
-
-
-@node    List of Figures, Index, List of Exercises, Top
-@unnumbered List of Figures
-
-
-@node    Index,  , List of Figures, Top
-@unnumbered Index
-
-@quotation
-Any inaccuracies in this index may be explained by the fact@* 
-that it has been prepared with the help of a computer. 
-
----Donald E. Knuth, @cite{Fundamental Algorithms}@* 
-(Volume 1 of @cite{The Art of Computer Programming}) 
-@end quotation
-
-
-@printindex cp
+@include references.texi
+@include index.texi
 
 @bye

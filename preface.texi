@@ -1,0 +1,15 @@
+@node    Preface, Acknowledgements, Top, Top
+@chapter Preface
+
+@tie{}@image{img/T}his book aspires to be a useful set of examples
+about how one might use @acronym{GNU} Guile.
+
+One of the interesting things about the Scheme community is that they
+are perhaps @emph{too clever}.  The depth and complexity of their
+thinking about computer languages is intense and wonderful.
+
+And yet, some times you just want to do something mundane.  Where are
+the resources for how to use Scheme -- and specifically Guile -- for
+quotidian tasks?
+
+Well, this document will be it, if all goes according to plan.

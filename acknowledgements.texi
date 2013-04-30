@@ -1,0 +1,12 @@
+@node       Acknowledgements, Theme 1, Preface, Top
+@chapter Acknowledgements
+
+@tie{}@image{img/T}hanks the many people who have helped us develop this book.
+@itemize
+@item
+Chris K Jester-Young contributed the original version of the @command{echo}
+and @command{cat} scripts for Problem 1.
+@item
+Jez Ng contributed the original version of @command{ls} for Problem 2.
+@end itemize
+

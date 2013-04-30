@@ -1,0 +1,14 @@
+@node    References, Index, Theme 2, Top
+@chapter References
+
+@anchor{Allen 1978}
+Allen, John.  1978.  @cite{Anatomy of Lisp}. New York: McGraw-Hill.
+
+@anchor{ANSI 1994}
+@acronym{ANSI} X3.226-1994. @cite{American National Standard for Information
+Systems@/---Programming Language---Common Lisp}.
+
+@anchor{IEEE 2004}
+The @acronym{IEEE} and The Open Group. 2001-2004. @cite{The Open Group Base Specifications Issue
+6@/ IEEE Std 1003.1, 2004 Edition}.
+

@@ -1,7 +1,7 @@
-@node    Theme 1, Theme 2, Top, Top
+@node    Theme 1, Theme 2, Acknowledgements, Top
 @chapter Theme 1: ``/bin''
 
-@tie{}@image{img/E}very project has to start somewhere, so let us
+@tie{}@image{img/E}very project has to start somewhere, Problem 5, Top, Top
 begin at the beginning.
 
 Guile can be used as a scripting language.  Programs can be written as
@@ -415,7 +415,7 @@ Use them to make `compress' and `uncompress' scripts.
 
 @subsection The Requirements for Compression Procedures and Scripts
 
-First up are the compression procedures.  Good old LZW compressions: a
+First up are the compression procedures.  Good old LZW compression: a
 nice problem in every CompSci's undergraduate classes.
 
 @heading @code{lzw-compress} and @code{lzw-uncompress}
@@ -495,8 +495,9 @@ If no filenames are given, @command{compress} will take the contents
 of stdin and send the compressed data to stdout.
 
 The optional @option{-b} @code{bits} parameter will indicate the
-maximum size of the dictionary.  If @code{bits} is given, it must be between
-9 and 16, indicating maximum dictionary sizes of @code{2^bits}.
+maximum size of the dictionary.  If @code{bits} is given, it must be
+between 9 and 16, indicating maximum dictionary sizes of
+@code{2^bits}.
 
 If the optional @option{-v} parameter is given, the script should
 print to stdout the compression ratio for each file processed.  If no
@@ -504,7 +505,7 @@ file was specified and this program is thus compressing stdin to
 stdout, this flag is ignored.
 
 Compress should fail with appropriate error messages if any of the
-following problems occur 
+following problems occur
 
 @itemize
 @item
@@ -589,13 +590,12 @@ two sets of functions to help parse command line
 options: the @code{ice-9 getopt-long} module and the @code{srfi
 srfi-37} module.
 
-
-
 @node    Problem 4,  , Problem 3, Theme 1
 @section Problem 4: tar file archives
 
-This challenge is to write a simple archiving tool that is compatible
-with common POSIX tools.
+This challenge is to create a script that takes a list of filenames
+and that generates an @emph{ustar}-format archive file.  This archive
+file format is compatible with common POSIX tools.
 
 The @emph{ustar} interchange format is one of the simpler formats used
 for archive files that contain multiple files along with their
@@ -607,12 +607,6 @@ subset of the functionality that @emph{ustar} files can provide.  The
 result should be readable by common @command{tar} and @command{pax}
 tools.
 
-@menu
-* ustar script::
-* ustar File Format::
-@end menu
-
-@node ustar script, ustar File Format, Problem 4, Problem 4
 @subsection @command{ustar} Script
 
 The @command{ustar} script will have a simple calling structure.
@@ -647,7 +641,6 @@ file's UID or GID is greater than 2,097,151 (octal 7777777)
 system errors about inability to open, write, or close files.
 @end itemize
 
-@node ustar File Format,  , ustar script, Problem 4
 @subsection The @emph{rustar} File Format
 
 First, I will describe our restricted @emph{ustar} file format, which,
@@ -707,22 +700,21 @@ and U+00, but, U+00 can only be followed by more U+00.
 @end itemize
 
 @item
-@code{rustar-0string[N]} --- note the `0' --- is a fixed-width
-string with the same format and restrictions as a
-@code{rustar-string[N]} but with an addition restriction. It must end
-with at least one NULL byte.
+@code{rustar-0string[N]} --- note the `0' --- is a fixed-width string
+with the same format and restrictions as a @code{rustar-string[N]} but
+with an addition restriction. It must end with at least one NULL byte.
 
 @item
-@code{rustar-number[N]} is an unsigned integer stored as a
-fixed-width string.  The string contains the the text representation
-of the integer in octal format.  The last byte (and only the last
-byte) of the string must be NULL.  The string is left-padded with the
-`0' character to ensure the number occupies the whole of its fixed
-width buffer.
+@code{rustar-number[N]} is an unsigned integer stored as a fixed-width
+string.  The string contains the the text representation of the
+integer in octal format.  The last byte (and only the last byte) of
+the string must be NULL.  The string is left-padded with the `0'
+character to ensure the number occupies the whole of its fixed width
+buffer.
 
 For example, a @code{rustar-number[8]} field for the integer 10 will
-be the string ``0000012'' followed by one byte of NULL. 12 octal equals
-10 decimal.
+be the string ``0000012'' followed by one byte of NULL. 12 octal
+equals 10 decimal.
 @end enumerate
 
 @heading Header Fields
@@ -804,15 +796,15 @@ The mode bitfield is a standard permissions bitfield:
 @item
 0x008 exeute permission for 'group'
 @item
-0x010 write permission for group
+0x010 write permission for 'group'
 @item
-0x020 read permission for group
+0x020 read permission for 'group'
 @item
-0x040 execute permission for owner
+0x040 execute permission for 'owner'
 @item
-0x080 write permission for owner
+0x080 write permission for 'owner'
 @item
-0x100 read permission for owner
+0x100 read permission for 'owner'
 @item
 0x200 (unused)
 @item

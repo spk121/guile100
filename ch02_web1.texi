@@ -1,4 +1,4 @@
-@node    Theme 2, , Theme 1, Top
+@node    Theme 2, References, Theme 1, Top
 @chapter Theme 2: Web 1.0
 
 @tie{}@image{img/T}he second theme in this project is ``Web 1.0'',
@@ -69,10 +69,23 @@ And away we go.
 
 @menu
 * Problem 5::                   PHP-Style GUILE
+* Problem 6::                   CGI and MySQL
 @end menu
 
-@node Problem 5,  , Theme 2, Theme 2
+@node Problem 5, Problem 6, Theme 2, Theme 2
 @section Problem 5: PHP-Style GUILE
+
+This challenge is to write a CGI script that
+@enumerate
+@item
+receives a filename as a parameter
+@item
+passes a file by that filename through a preprocessor called @emph{eguile}
+@item
+and returns the output to the CGI client.
+@end enumerate
+
+But why @emph{eguile}?
 
 One of the programming paradigms of Web 1.0 was the @acronym{PHP}
 programming model, where code was embedded within @acronym{HTML}.  The
@@ -98,8 +111,9 @@ document.
 
 When it first arrived on the scene, PHP was CGI executable.
 
-Today's challenge is to re-create the PHP programming model in Guile,
-making something like this.
+The side effect of today's challenge is to re-create the PHP
+programming model in Guile, making something like the following
+possible.
 
 @verbatim
 <!DOCTYPE html>
@@ -117,9 +131,6 @@ making something like this.
 </html>
 @end verbatim
 
-This should be pretty easy, since all the parts are already in place.
-They just need to be glued together.
-
 @heading Mixing HTML and Scheme
 
 To start, there is an abandonware project called @dfn{Eguile}.  When
@@ -135,7 +146,7 @@ Eguile does this by recognizing two new tags.
 @samp{<?scm} and @samp{?>} enclose Scheme code, which Eguile
 will pass to Guile for evaluation.
 @item
-@samp{<?scm:d} (note the @samp{:d}) and @samp{?>} also
+@samp{<?scm:d} and @samp{?>} also
 enclose Scheme code to be evaluated, just like the @samp{<?scm} tags.
 Additionally, Eguile will display the value of the last expression
 using the @code{display} procedure.
@@ -166,9 +177,10 @@ Guile HTML Processor.  For any basic webserver, you can put the
 your browser to something like
 @indicateurl{http://localhost/cgi-bin/ghp.cgi}.
 
-But wait!  We have to tell @file{ghp.cgi} what HTML-and-Scheme file it
-needs to process and output.  One way is to have @file{ghp.cgi} parse
-any extra path information at the end of its @acronym{URL}.
+But @css{bold, wait}!  We have to tell @file{ghp.cgi} what
+HTML-and-Scheme file it needs to process and output.  One way is to
+have @file{ghp.cgi} parse any extra path information at the end of its
+@acronym{URL}.
 
 That script can parse extra path information is given after the script
 name, like so:
@@ -208,12 +220,40 @@ Scheme content just like @acronym{PHP} 3 did way back in 1997.
 
 You can find Guile-WWW at @url{http://nongnu.org/guile-www}.
 
-For the moment, you can find Eguile at
+For the moment, you can find Eguile at @*
+@url{https://github.com/spk121/guile100/blob/master/code/eguile.scm}
+
+The original source of Eguile is at @*
 @url{http://woozle.org/~neale/src/eguile/}.  Remember that it is
 abandonware, so don't bug the owner with questions.  We're going to
 find a new home and maintainer for Eguile in the near future.
 
-There is another version of Eguile at @*
-@url{https://github.com/spk121/guile100/blob/master/code/eguile.scm}
-which removes the SLIB dependency and is slightly modernized.
+Eguile itself was based on other predecessors, like Shiro Kawai's
+@dfn{ESCM}.  You can find ESCM at @*
+@url{http://practical-scheme.net/vault/escm.html}.
+
+@node Problem 6,  , Problem 5, Theme 2
+@section Problem 6: MySQL
+
+This challenge is to write one static HTML form page and one CGI
+script that will add data to a MySQL database table.
+@enumerate
+@item
+Create a static HTML page that has a form with a @emph{name} text
+field and a male/female/other @emph{gender} radio button set.  The
+form, when posted, will call a Guile CGI script as its action, posting
+the name and gender fields.
+@item
+Create a CGI script that receives the form's @emph{name} and
+@emph{gender} post data and adds it to a MySQL / MariaDB database.
+The script will then display the entire contents of the database as a
+table in HTML.
+@end enumerate
+
+You may find Guile-WWW useful when creating CGI scripts.  You can find
+Guile-WWW at @url{http://nongnu.org/guile-www}.
+
+Guile-DBI is probably the best way to access MySQL databases in Guile.
+You can find it at @url{http://home.gna.org/guile-dbi/}.
+
 
