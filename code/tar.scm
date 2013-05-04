@@ -81,14 +81,10 @@
 	    (dev-minor . ,(make-rustar-number 8 0))
 	    (path . ,(make-rustar-string 155 (dirname filename)))
 	    (padding . ,(make-rustar-0string 12 ""))))
-	 (checksum
-	  (reduce + 0
-		  (map
-		   (lambda (entry)
-		     (reduce + 0 (bytevector->u8-list (cdr entry)))) header))))
+	 (sum (cut reduce + 0 <>))
+	 (checksum (sum (map (compose sum bytevector->u8-list cdr) header))))
     (set! header (assq-set! header 'checksum (make-rustar-number 8 checksum)))
-    (for-each (lambda (entry)
-		(write-bytevector (cdr entry))) header)))
+    (for-each (compose write-bytevector cdr) header)))
 
 (define (tar archive filenames)
   (with-output-to-file archive
