@@ -15,9 +15,9 @@
 (define (cat)
   (define bv (make-bytevector block-size 0))
   (let ((read-count (get-bytevector-n! (current-input-port) bv 0 block-size)))
-    (write-bytevector bv)
-    (unless (or (eof-object? read-count) (< read-count block-size))
-      (cat))))
+    (unless (eof-object? read-count)
+      (write-bytevector bv)
+      (unless (< read-count block-size) (cat)))))
 
 (define (valid-rustar-char? c)
   (or (char<=? #\x20 c #\x22)
