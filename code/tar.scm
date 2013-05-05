@@ -54,6 +54,15 @@
 	(make-fixed-string length (string-append (make-string padding #\0) num))
 	(throw 'ustar-error "~a is too large for tar header" num))))
 
+;; Unlike dirname, this doesn't return "." for files in the cwd.
+(define (raw-dirname path)
+  (let ((last-separator-pos (string-rindex
+			     path
+			     (string-ref file-name-separator-string 0))))
+    (if last-separator-pos
+	(string-take path last-separator-pos)
+	"")))
+
 (define (write-file-header filename)
   (define st (lstat filename))
   (unless (eq? (stat:type st) 'regular)
@@ -79,7 +88,7 @@
 	    (gname . ,(make-rustar-0string 32 (group:name (getgrgid gid))))
 	    (dev-major . ,(make-rustar-number 8 0))
 	    (dev-minor . ,(make-rustar-number 8 0))
-	    (path . ,(make-rustar-string 155 (dirname filename)))
+	    (path . ,(make-rustar-string 155 (raw-dirname filename)))
 	    (padding . ,(make-rustar-0string 12 ""))))
 	 (sum (cut reduce + 0 <>))
 	 (checksum (sum (map (compose sum bytevector->u8-list cdr) header))))
