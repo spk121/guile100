@@ -19,12 +19,16 @@
       (write-bytevector bv)
       (unless (< read-count block-size) (cat)))))
 
+(define rustar-char-set
+  (char-set-union
+   (ucs-range->char-set #x20 #x23)
+   (ucs-range->char-set #x25 #x40)
+   (ucs-range->char-set #x41 #x5B)
+   (char-set #\x5F)
+   (ucs-range->char-set #x61 #x7B)))
+
 (define (valid-rustar-char? c)
-  (or (char<=? #\x20 c #\x22)
-      (char<=? #\x25 c #\x3F)
-      (char<=? #\x41 c #\x5A)
-      (char=?  #\x5F c)
-      (char<=? #\x61 c #\x7A)))
+  (char-set-contains? rustar-char-set c))
 
 (define (make-fixed-string length string)
   (let ((bv (make-bytevector length 0)))
