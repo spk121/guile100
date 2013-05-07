@@ -191,13 +191,13 @@ use @code{ice-9 getopt-long} for @command{cat}.
 Chris K Jester-Young was the volunteer for this section, and here are
 his solutions, with some annotations by the editor.
 
+@page
 @heading `cat'
 
 First we have @command{cat}.  One interesting thing to note in this
 example is the use of @code{catch} to catch system errors that may
 arise if files do not exist or cannot be opened.
 
-@page
 @verbatiminclude code/cat.scm
 @page
 
@@ -205,7 +205,6 @@ arise if files do not exist or cannot be opened.
 
 Next up is @command{echo}. 
 
-@page
 @verbatiminclude code/echo.scm
 @page
 
@@ -442,6 +441,9 @@ Probably the best writup on LZW compression is the one by Mark Nelson
 over at @uref{http://marknelson.us/2011/11/08/lzw-revisited/}. Refer
 to that article for details on LZW compression.
 
+It is possible to fill up the dictionary.  In that case, one continues
+to use the dictionary as it is, without adding new entries.
+
 As is common, the first 256 entries in the dictionary -- entries #0 to
 #255 -- are initialized to 0 to 255.  Entry #256 is not to be
 used.  Entries #257 to #(table-size - 1) will contain the multi-byte
@@ -454,6 +456,19 @@ by @code{compress} and an optional table size and returns the
 when true, causes the procedure to also return its dictionary or hash
 table.
 @end deffn
+
+Daniel Hartwig contributed an implementation of these compression
+routines.
+
+There are a couple of interesting techniques of which to take note.
+First, if you C programmers have ever wondered how to create a static
+variable in a function, @code{make-serial-number-generator} show the
+Scheme analog of that technique.
+
+@page
+@verbatiminclude code/lzw.scm
+@page
+
 
 @heading The `compress' and `uncompress' scripts
 
@@ -580,15 +595,18 @@ Erasing the input file on completion fails for any reason
 If an error occurs, the script should return the error code 1.
 Otherwise it returns the error code 0.
 
-@heading Rules and Suggestions for the Volunteer
+@heading @code{compress} and @code{uncompress}
 
-For this exercise, the volunteer is requested to use only Guile's
-library functions.  No external libraries are allowed.
+Daniel Hartwig contributed @code{compress} and @code{uncompress}
+scripts.  As you can imagine, the majority of the scripts do
+unglamorous tasks such as checking options, filenames and the like.
 
-The volunteer is also requested to attempt to use one of Guile's 
-two sets of functions to help parse command line
-options: the @code{ice-9 getopt-long} module and the @code{srfi
-srfi-37} module.
+@page
+Here's @code{compress}
+@verbatiminclude code/compress
+@page
+Here's @code{uncompress}
+@verbatiminclude code/uncompress
 
 @node    Problem 4,  , Problem 3, Theme 1
 @section Problem 4: tar file archives
