@@ -70,6 +70,7 @@ And away we go.
 @menu
 * Problem 5::                   PHP-Style GUILE
 * Problem 6::                   CGI and MySQL
+* Problem 7::                   Animated GIFs
 @end menu
 
 @node Problem 5, Problem 6, Theme 2, Theme 2
@@ -232,7 +233,7 @@ Eguile itself was based on other predecessors, like Shiro Kawai's
 @dfn{ESCM}.  You can find ESCM at @*
 @url{http://practical-scheme.net/vault/escm.html}.
 
-@node Problem 6,  , Problem 5, Theme 2
+@node Problem 6, Problem 7, Problem 5, Theme 2
 @section Problem 6: MySQL
 
 This challenge is to write one static HTML form page and one CGI
@@ -256,4 +257,58 @@ Guile-WWW at @url{http://nongnu.org/guile-www}.
 Guile-DBI is probably the best way to access MySQL databases in Guile.
 You can find it at @url{http://home.gna.org/guile-dbi/}.
 
+@node Problem 7,  , Problem 6, Theme 2
+@section Problem 7: Animated GIF Badges
+
+A very important part of the Web 1.0 experience were the GIF badges.
+These 88 by 31 pixel images were typically bright colors on a grey
+background with a border to give it a raised button effect.  They had
+text announcing one's loyalty to a brand of webbrowser, computer, or
+political philosophy, or were used as download buttons.  They were
+usually animated.
+
+To create our Web 1.0 experience, we need animated GIF badges.  So
+this week's task is to write a procedure that will create a GIF.  The
+procedure will have to come in two versions: one for animated GIF and
+one for static GIF.
+
+For the static GIF case, you should assume that your input data is the
+following: 
+@itemize
+@item
+a filename for the output
+@item
+a palette of 256 24-bit RGB colors, perhaps stored as a vector of
+unsigned integers 
+@item
+a two dimensional array of unsigned 8-bit
+indices to the palette colors
+@end itemize
+
+For the animated GIF case, you should assume that your input data is
+@itemize
+@item
+a filename for the output
+@item
+a palette of 256 24-bit RGB colors, as above
+@item
+a three-dimensional array of unsigned 8-bit indices
+@item and a variable containing the desired millisconds per frame
+@end itemize
+
+The actual specification for GIF, GIF89a, can be found at@*
+@url{http://www.w3.org/Graphics/GIF/spec-gif89a.txt}. This
+specification, however, contains a lot of fields and features that
+won't be needed for this specific case. On the other end of the
+spectrum is the current Wikipedia page for GIF,
+@url{https://en.wikipedia.org/wiki/Gif}, which, at the time of this
+writeup, contains a very condensed and cryptic description of the file
+format and the fields contained therein.  By merging information from
+the official specification and the condensed one, it should be
+possible to write a legible function that creates GIFs for the two
+cases described above.
+
+One of the trickier parts of the implementation is the LZW compression
+required.  Fortunately, an implementation of LZW compression is handy,
+@xref{Problem 3}: LZW Compression.
 

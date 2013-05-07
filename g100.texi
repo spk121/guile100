@@ -120,6 +120,7 @@ Theme 2: Web 1.0
 
 * Problem 5::                   PHP-Style GUILE
 * Problem 6::                   CGI and MySQL
+* Problem 7::                   Animated GIFs
 
 @end detailmenu
 @end menu
