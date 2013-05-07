@@ -671,14 +671,14 @@ the @emph{ustar} format.
 A @emph{rustar} file contains a set of @emph{logical records}.  Each
 logical record represents the contents of a file plus its metadata.
 The logical records appear sequentially in the file, one after
-another, and there is no global header or footer in the file.
+another, and there is no global header in the file.  At the end of the
+file is a footer.
 
 @heading Logical Records
 
-Each logical record consists of three parts, a @emph{header} segment,
-the contents of the file a.k.a the @emph{data} segment, and a
-@emph{footer} segment.  Of these, only the @emph{header} requires a
-detailed explanation.
+Each logical record consists of two parts, a @emph{header} segment,
+and the contents of the file a.k.a the @emph{data} segment.  Of these,
+only the @emph{header} requires a detailed explanation.
 
 @heading Header
 
@@ -837,4 +837,22 @@ stored.  The data segment is NULL-padded so that it ends on a 512-byte
 block boundary.
 
 @heading Footer
-The footer is 1024 bytes of NULL.
+The footer is 1024 bytes of NULL that appears at the end of the file.
+
+@page
+@heading The Archive Script
+
+Jez NG contributed a script that meets the above requirements quite
+nicely. One thing to note here is the use of the procedures @code{cut}
+and @code{cute}.  These let you, in effect, pass a subset of the
+required parameters to a procedure.  In a later call, you can add the
+remaining parameters to the procedure and then truly call it.
+
+@verbatiminclude code/tar.scm
+
+Later, Mark Weaver contributed a more featureful script that handles
+almost all of the capabilites of the @code{ustar} archive format.  It
+does directories and links as well as files.  Also, he uses a very
+common hack to allow longer path names.  He puts whatever part of the
+path that will fit within the 100 character field for the filename.
+You can find his script in the appendix, @xref {ustar Archives}.

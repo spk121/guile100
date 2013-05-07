@@ -1,0 +1,22 @@
+@node    Other Examples, References, Theme 2, Top
+@appendix Other Examples
+
+Here are some other examples for you
+
+@menu
+* ustar Archives::
+@end menu
+
+@node ustar Archives,  , Other Examples, Other Examples
+@section @code{ustar} Archives
+
+Back in @ref{Problem 4}, I defined a limited, reduced functionality
+version of the @code{ustar} archive format.  The limited version had
+just enough functionality to create a valid TAR file.  After I
+received Jez's solution, Mark Weaver sent an alternate script that
+handles almost all of the capabilities of the @code{ustar} file
+format, including links and longer path names.  That script is below
+
+@verbatiminclude code/tar2.scm
+
+

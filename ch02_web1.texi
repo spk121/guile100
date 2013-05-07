@@ -1,4 +1,4 @@
-@node    Theme 2, References, Theme 1, Top
+@node    Theme 2, Other Examples, Theme 1, Top
 @chapter Theme 2: Web 1.0
 
 @tie{}@image{img/T}he second theme in this project is ``Web 1.0'',
