@@ -1,0 +1,154 @@
+#!/usr/bin/guile \
+-e main -s
+!#
+
+;; Copyright (C) 2013 Daniel Hartwig <mandyke@gmail.com>
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+(use-modules (lzw)
+             (ice-9 control)
+             (ice-9 format)
+             (ice-9 i18n)
+             (ice-9 match)
+             (rnrs bytevectors)
+             (rnrs io ports)
+             (srfi srfi-37))
+
+(define *program-name* #f)
+
+(define (_ msg . rest)
+  (gettext (string-concatenate (cons msg rest)) "guile100-compress"))
+
+(define (error* status msg . args)
+  (force-output)
+  (let ((port (current-error-port)))
+    (when *program-name*
+      (display *program-name* port)
+      (display ": " port))
+    (apply format port msg args)
+    (newline port)
+    (unless (zero? status)
+      (abort (lambda (k)
+               status)))))
+
+(define (make-file-error-handler filename)
+  (lambda args
+    (error* 1 (_ "~a: ~a")
+            filename
+            (strerror (system-error-errno args)))))
+
+(define (system-error-handler key subr msg args rest)
+  (apply error* 1 msg args))
+
+(define (compression-ratio nbytes-in nbytes-out)
+  (exact->inexact (/ (- nbytes-in nbytes-out) nbytes-in)))
+
+(define (read-lzw-header port)
+  (match (bytevector->u8-list (get-bytevector-n port 3))
+    ((#x1F #x9D bits)
+     (and (<= 9 bits 16)
+          (values bits)))
+    (x #f)))
+
+(define (uncompress-port in out verbose?)
+  (let ((bits (read-lzw-header in)))
+    (unless bits
+      (error* 1 (_ "incorrect header")))
+    #;
+    (%lzw-uncompress (cute get-u16 in)
+                     (cute put-u8 out <>)
+                     eof-object?
+                     (expt 2 bits))
+    (let* ((in-bv (get-bytevector-all in))
+           (out-bv (lzw-uncompress in-bv #:table-size (expt 2 bits))))
+      (put-bytevector out out-bv))))
+
+(define (uncompress-file infile verbose?)
+  (catch 'system-error
+    (lambda ()
+      (let ((outfile (string-drop-right infile 2)))
+        (when (not (string-suffix? ".Z" infile))
+          (error* 1 (_ "~a: does not have .Z suffix") infile))
+        (when (file-exists? outfile)
+          (error* 1 (_ "~a: already exists") outfile))
+        (let ((in (open-file infile "rb"))
+              (out (open-file outfile "wb")))
+          (uncompress-port in out verbose?)
+          (when verbose?
+            (format #; (current-error-port)
+                    (current-output-port)
+                    (_ "~a: compression: ~1,2h%\n") ; '~h is localized '~f'.
+                    infile
+                    (* 100 (compression-ratio (port-position out)
+                                              (port-position in)))))
+          (for-each close-port (list in out))
+          (delete-file infile))))
+    system-error-handler))
+
+(define (usage status)
+  (format (current-error-port)
+          (_ "Usage: ~a [-v] [FILE]...\n"
+             "    -v, --verbose         show compression ratio\n")
+          *program-name*)
+  (abort (lambda (k)
+           status)))
+
+(define (make-boolean-processor key)
+  (lambda (opt name arg config . rest)
+    (apply values (assq-set! config key #t)
+           rest)))
+
+(define (main args)
+  (% (call-with-values
+         (lambda ()
+           (args-fold (cdr args)
+                      (list (option '(#\h "help") #f #f
+                                    (lambda args
+                                      (usage 0)))
+                            (option '(#\v "verbose") #f #f
+                                    (make-boolean-processor 'verbose?)))
+                      (lambda (opt name arg . rest)
+                        (error* 0 (_ "invalid option -- '~a'") name)
+                        (usage 1))
+                      (lambda (arg config infiles)
+                        (values config
+                                (cons arg infiles)))
+                      ;; First seed: config (with default values).
+                      '((verbose? . #f))
+                      ;; Second seed: infiles (initially empty list).
+                      '()))
+       (lambda (config infiles)
+         (let ((verbose? (assq-ref config 'verbose?)))
+           (for-each (lambda (infile)
+                       (cond ((string=? infile "-")
+                              (uncompress-port (current-input-port)
+                                               (current-output-port)
+                                               verbose?))
+                             (else
+                              (uncompress-file infile
+                                               verbose?))))
+                     (if (null? infiles)
+                         ;; No arguments, use stdin.
+                         '("-")
+                         ;; Process the files in the order given on
+                         ;; the command line.
+                         (reverse infiles)))
+           ;; Exit indicating success.
+           0)))))
+
+(when (batch-mode?)
+  (setlocale LC_ALL "")
+  (set! *program-name* (basename (car (program-arguments))))
+  (exit (main (program-arguments))))
